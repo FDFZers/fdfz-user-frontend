@@ -36,10 +36,7 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
-        cache: 'npm'  # 如果使用 npm，启用缓存
-        # 如果使用 pnpm，移除这行
         
-    # 如果使用 pnpm
     - name: Install pnpm
       uses: pnpm/action-setup@v3
       with:
@@ -61,7 +58,6 @@ jobs:
 
     - name: Install dependencies
       working-directory: ./client
-      # 如果没有锁文件，使用 install 生成；如果有，使用 --frozen-lockfile
       run: |
         if [ -f "pnpm-lock.yaml" ]; then
           echo "Found pnpm-lock.yaml, using frozen-lockfile"
