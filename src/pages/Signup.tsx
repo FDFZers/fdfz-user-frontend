@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useLayoutEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { 
   Button,
@@ -23,10 +23,48 @@ function Signup() {
   const [step, setStep] = useState(1)
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
+  const cardRef = useRef<HTMLDivElement>(null)
+
+  // 切换步骤：先锁定当前高度，再切换内容；随后由 useLayoutEffect 测量新高度并过渡
+  const goStep = (next: number) => {
+    const el = cardRef.current
+    if (el) {
+      el.style.height = `${el.offsetHeight}px`
+      void el.offsetHeight // 强制回流，确保起始高度已提交
+    }
+    setStep(next)
+  }
+
+  // 新内容渲染后：测量真实高度并过渡。关键：必须先把高度放开为 auto 再测量，
+  // 否则当新内容比锁定高度矮时，scrollHeight 会返回当前高度而非内容高度。
+  useLayoutEffect(() => {
+    const el = cardRef.current
+    if (!el) return
+    const locked = el.style.height
+    el.style.height = 'auto'
+    const target = el.offsetHeight // 新内容真实高度
+    el.style.height = locked // 恢复起始高度，作为过渡起点
+    void el.offsetHeight // 强制回流，确保起点已提交
+    el.style.height = `${target}px`
+    const reset = () => {
+      if (cardRef.current) cardRef.current.style.height = 'auto'
+    }
+    const onEnd = (e: TransitionEvent) => {
+      if (e.propertyName !== 'height') return
+      reset()
+    }
+    el.addEventListener('transitionend', onEnd)
+    // 兜底：相邻两步高度相同时不会触发 transition，用定时器复位为 auto
+    const t = window.setTimeout(reset, 350)
+    return () => {
+      el.removeEventListener('transitionend', onEnd)
+      window.clearTimeout(t)
+    }
+  }, [step])
 
   return (
     <div className="signup-page">
-      <div className="signup-page__card">
+      <div className="signup-page__card" ref={cardRef}>
         <div className="signup-page__header">
           <h1>注册</h1>
           <p>欢迎来到 FF Wiki！</p>
@@ -42,7 +80,7 @@ function Signup() {
               <FieldError />
             </TextField>
 
-            <Button type="button" size="lg" fullWidth onPress={() => setStep(2)}>
+            <Button type="button" size="lg" fullWidth onPress={() => goStep(2)}>
               继续 <ArrowRight />
             </Button>
             </div>
@@ -55,7 +93,7 @@ function Signup() {
             <Form className='signup-info-form'>
             <div className="signup-step" key="3">
             <div className="signup-step__back">
-              <Button type="button" variant="ghost" size="sm" onPress={() => setStep(1)}>
+              <Button type="button" variant="ghost" size="sm" onPress={() => goStep(1)}>
                 <ChevronLeft /> 返回
               </Button>
             </div>
@@ -87,7 +125,7 @@ function Signup() {
               <p className="signup-password-mismatch">两次输入的密码不一致</p>
             )}
 
-            <Button type="button" size="lg" fullWidth onPress={() => setStep(3)}>
+            <Button type="button" size="lg" fullWidth onPress={() => goStep(3)}>
               继续 <ArrowRight />
             </Button>
             </div>
@@ -98,7 +136,7 @@ function Signup() {
         {step === 3 && (
           <div className='signup-auth'>
             <div className="signup-auth__back">
-              <Button variant="ghost" size="sm" onPress={() => setStep(2)}>
+              <Button variant="ghost" size="sm" onPress={() => goStep(2)}>
                 <ChevronLeft /> 返回
               </Button>
             </div>
@@ -141,7 +179,7 @@ function Signup() {
               </Radio>
             </RadioGroup>
 
-            <Button type="button" size="lg" fullWidth onPress={() => setStep(4)}>
+            <Button type="button" size="lg" fullWidth onPress={() => goStep(4)}>
               验证您的身份 <ArrowRight />
             </Button>
             </div>
@@ -152,7 +190,7 @@ function Signup() {
         {step === 4 && (
           <div className='signup-auth'>
             <div className="signup-auth__back">
-              <Button variant="ghost" size="sm" onPress={() => setStep(3)}>
+              <Button variant="ghost" size="sm" onPress={() => goStep(3)}>
                 <ChevronLeft /> 返回
               </Button>
             </div>

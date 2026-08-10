@@ -22,6 +22,8 @@
 }
 .signup-page__card {
   border-radius: 32px;
+  overflow: hidden;
+  transition: height 0.3s var(--ease-out);
 }
 
 .signup-page__header {

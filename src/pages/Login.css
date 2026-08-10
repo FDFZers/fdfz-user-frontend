@@ -21,6 +21,11 @@
   }
 }
 
+.login-page__card {
+  overflow: hidden;
+  transition: height 0.3s var(--ease-out);
+}
+
 .login-page__header {
   margin-bottom: 1.5rem;
 }

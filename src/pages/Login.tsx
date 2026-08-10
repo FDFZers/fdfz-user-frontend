@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import {
   Button,
@@ -73,7 +73,18 @@ function Login() {
   // QQ 验证步骤
   const [qqCode, setQqCode] = useState('')
 
+  const cardRef = useRef<HTMLDivElement>(null)
   const finalizedRef = useRef(false)
+
+  // 切换阶段：先锁定当前高度，再切换内容；随后由 useLayoutEffect 做高度过渡
+  const goPhase = useCallback((next: Phase) => {
+    const el = cardRef.current
+    if (el) {
+      el.style.height = `${el.offsetHeight}px`
+      void el.offsetHeight // 强制回流
+    }
+    setPhase(next)
+  }, [])
 
   const currentStep: NextStep | undefined = session?.next_steps?.[0]
 
@@ -82,7 +93,7 @@ function Login() {
     async (sid: string) => {
       if (finalizedRef.current) return
       finalizedRef.current = true
-      setPhase('finalizing')
+      goPhase('finalizing')
       setError('')
       try {
         const authTokens = await finalizeLogin(sid)
@@ -90,11 +101,11 @@ function Login() {
         navigate('/')
       } catch (e) {
         finalizedRef.current = false
-        setPhase('verify')
+        goPhase('verify')
         setError(errMsg(e))
       }
     },
-    [account, login, navigate],
+    [account, goPhase, login, navigate],
   )
 
   // 刷新会话状态；鉴权成功后自动换取令牌
@@ -138,12 +149,12 @@ function Login() {
     const email = String(new FormData(e.currentTarget).get('email') ?? '').trim()
     if (!email) return
     setAccount(email)
-    setPhase('challenge')
+    goPhase('challenge')
     try {
       setChallenge(await getChallenge())
     } catch (err) {
       setError(errMsg(err))
-      setPhase('account')
+      goPhase('account')
     }
   }
 
@@ -155,7 +166,7 @@ function Login() {
     try {
       const { session_id } = await initLogin(payload)
       setSessionId(session_id)
-      setPhase('verify')
+      goPhase('verify')
       await refreshSession(session_id)
     } catch (e) {
       setError(errMsg(e))
@@ -248,13 +259,38 @@ function Login() {
     setSession(null)
     setQqCode('')
     setCodeSent(false)
-    setPhase('account')
+    goPhase('account')
     setError('')
   }
 
+  // 新内容渲染后：测量真实高度并过渡（逻辑与注册页一致）
+  useLayoutEffect(() => {
+    const el = cardRef.current
+    if (!el) return
+    const locked = el.style.height
+    el.style.height = 'auto'
+    const target = el.offsetHeight
+    el.style.height = locked
+    void el.offsetHeight
+    el.style.height = `${target}px`
+    const reset = () => {
+      if (cardRef.current) cardRef.current.style.height = 'auto'
+    }
+    const onEnd = (e: TransitionEvent) => {
+      if (e.propertyName !== 'height') return
+      reset()
+    }
+    el.addEventListener('transitionend', onEnd)
+    const t = window.setTimeout(reset, 350)
+    return () => {
+      el.removeEventListener('transitionend', onEnd)
+      window.clearTimeout(t)
+    }
+  }, [phase, currentStep])
+
   return (
     <div className="login-page">
-      <div className="login-page__card">
+      <div className="login-page__card" ref={cardRef}>
         <div className="login-page__header">
           <h1>登录</h1>
           <p>欢迎回来，请输入账号信息</p>
