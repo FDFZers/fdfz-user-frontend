@@ -254,18 +254,19 @@ function Login() {
 
   return (
     <div className="login-page">
-      <div className="login-page__header">
-        <h1>登录</h1>
-        <p>欢迎回来，请输入账号信息</p>
-      </div>
+      <div className="login-page__card">
+        <div className="login-page__header">
+          <h1>登录</h1>
+          <p>欢迎回来，请输入账号信息</p>
+        </div>
 
-      <div className="login-form">
+        <div className="login-form">
         {phase === 'account' && (
           <div className="login-step" key="account">
             <Form onSubmit={submitAccount} className="login-step__inner">
               <TextField isRequired name="email">
-                <Label className="ml-2">邮箱</Label>
-                <Input type="email" placeholder="you@example.com" />
+                <Label className="ml-2">用户名或邮箱</Label>
+                <Input />
                 <FieldError />
               </TextField>
               <Button type="submit" variant="primary" size="lg" fullWidth>
@@ -440,6 +441,7 @@ function Login() {
             {error && <p className="login-page__error">{error}</p>}
           </div>
         )}
+        </div>
       </div>
 
       <p className="login-page__footer">

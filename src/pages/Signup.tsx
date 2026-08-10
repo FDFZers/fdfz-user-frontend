@@ -26,7 +26,8 @@ function Signup() {
 
   return (
     <div className="signup-page">
-      <div className="signup-page__header">
+      <div className="signup-page__card">
+        <div className="signup-page__header">
           <h1>注册</h1>
           <p>欢迎来到 FF Wiki！</p>
         </div>
@@ -87,7 +88,7 @@ function Signup() {
             )}
 
             <Button type="button" size="lg" fullWidth onPress={() => setStep(3)}>
-              验证您的身份 <ArrowRight />
+              继续 <ArrowRight />
             </Button>
             </div>
             </Form>
@@ -101,7 +102,6 @@ function Signup() {
                 <ChevronLeft /> 返回
               </Button>
             </div>
-            <h1>我们需要验证您确实是复旦附中的学生。</h1>
 
           <Form className='signup-auth-form'>
             <div className="signup-step" key="4">
@@ -142,7 +142,7 @@ function Signup() {
             </RadioGroup>
 
             <Button type="button" size="lg" fullWidth onPress={() => setStep(4)}>
-              继续 <ArrowRight />
+              验证您的身份 <ArrowRight />
             </Button>
             </div>
             </Form>
@@ -226,6 +226,7 @@ function Signup() {
             </Form>
           </div>
         )}
+      </div>
 
       <p className="signup-page__footer">
         已有账号？<Link className="signup-page__link" to="/login">去登录</Link>

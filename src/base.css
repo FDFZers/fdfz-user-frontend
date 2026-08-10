@@ -6,6 +6,22 @@
    This file only contains element-specific rules that target individual
    HeroUI component classes. */
 
+/* ---------------------------------------------------------------------------
+   Auth page cards (login / signup)
+   A raised surface card that lifts the form off the app background. The card
+   uses a fill *darker* than the default input field background
+   (--field-background), so the inputs keep their default color and still
+   read clearly against the card.
+   ------------------------------------------------------------------------- */
+.login-page__card,
+.signup-page__card {
+  background: var(--background-secondary);
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) * 2);
+  box-shadow: var(--surface-shadow);
+  padding: 1.75rem;
+}
+
 .button--primary {
   box-sizing: border-box;
   border-bottom: 1.5px solid var(--btn-primary-border);

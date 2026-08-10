@@ -20,6 +20,9 @@
     transform: translateY(0);
   }
 }
+.signup-page__card {
+  border-radius: 32px;
+}
 
 .signup-page__header {
   margin-bottom: 1.5rem;
