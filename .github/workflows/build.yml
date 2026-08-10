@@ -1,14 +1,10 @@
-name: Node.js CI
+name: Build Frontend
 
 on:
   push:
     branches: [ "main" ]
-    paths:
-      - 'client/**'
   pull_request:
     branches: [ "main" ]
-    paths:
-      - 'client/**'
   workflow_dispatch:
 
 permissions:
@@ -62,7 +58,7 @@ jobs:
 
     - name: Build
       working-directory: ./client
-      run: pnpm run build  # 直接运行 build，不添加额外参数
+      run: pnpm run build
 
     - name: Test
       working-directory: ./client
@@ -73,16 +69,3 @@ jobs:
       uses: actions/upload-pages-artifact@v3
       with:
         path: ./client/dist
-
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: build
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
