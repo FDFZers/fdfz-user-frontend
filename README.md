@@ -7,10 +7,9 @@
 - Node.js（v24 及以上）
 - pnpm（11.x 及以上）
 
-## 启动前端（frontend）
+## 启动项目
 
 ```bash
-cd frontend
 pnpm install
 pnpm dev
 ```
@@ -28,7 +27,6 @@ pnpm dev
 ## 构建生产版本
 
 ```bash
-cd client
 pnpm build
-# 产物输出到 client/dist
+# 产物输出到 dist
 ```
