@@ -1,0 +1,143 @@
+.login-page {
+  min-height: 100vh;
+  width: 100%;
+  max-width: 460px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 2.5rem 1.5rem;
+  animation: login-page-in 0.45s var(--ease-out) both;
+}
+
+@keyframes login-page-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.login-page__header {
+  margin-bottom: 1.5rem;
+}
+
+.login-page__header h1 {
+  margin: 0 0 0.25rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.login-page__header p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: color-mix(in srgb, var(--foreground) 60%, transparent);
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.login-step {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  animation: login-step-in 0.4s var(--ease-out) both;
+}
+
+.login-step__back {
+  font-size: 0.5rem;
+  padding: 0.25rem;
+}
+
+@keyframes login-step-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.login-code {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+
+.login-code .login-code__send-wrap {
+  flex-shrink: 0;
+  overflow: hidden;
+  transition: width 0.3s var(--ease-out);
+}
+
+.login-code .login-code__send-wrap .login-code__send {
+  width: 100%;
+  white-space: nowrap;
+}
+
+.login-code__hint {
+  margin: -0.5rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--accent);
+  animation: fade-slide-in 0.3s var(--ease-out) both;
+}
+
+.login-code__hint strong {
+  letter-spacing: 0.1em;
+}
+
+.login-page__error {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--danger);
+  text-align: center;
+  animation: fade-slide-in 0.3s var(--ease-out) both;
+}
+
+@keyframes fade-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.login-page__footer {
+  margin: 1.25rem 0 0;
+  text-align: center;
+  font-size: 0.875rem;
+  color: color-mix(in srgb, var(--foreground) 60%, transparent);
+}
+
+.login-page__link {
+  color: var(--accent);
+  cursor: pointer;
+}
+
+/* Small screens: tighten spacing and let the "获取验证码" button wrap below
+   the code input so the row never overflows horizontally. */
+@media (max-width: 380px) {
+  .login-page {
+    padding: 1rem;
+  }
+
+  .login-code {
+    flex-wrap: wrap;
+  }
+
+  .login-code .login-code__send-wrap {
+    width: 100% !important;
+  }
+}

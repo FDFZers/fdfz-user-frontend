@@ -1,0 +1,226 @@
+@import "tailwindcss";
+@import "@heroui/styles";
+
+/* Component-wide design tokens (borders, shadows) now live in `index.css`.
+
+   This file only contains element-specific rules that target individual
+   HeroUI component classes. */
+
+.button--primary {
+  box-sizing: border-box;
+  border-bottom: 1.5px solid var(--btn-primary-border);
+  border-right: 1.5px solid var(--btn-primary-border);
+  border-left: 1px solid var(--btn-primary-border);
+  border-top: 1px solid var(--btn-primary-border);
+  transform: all 0.5s ease-in-out;
+}
+
+/* Horizontal button groups: remove the border between adjacent buttons.
+   Left & middle children drop their right border; right & middle children
+   drop their left border, so neighboring buttons read as one unit. */
+.button-group--horizontal .button:not(:last-child) {
+  border-right: 0;
+}
+.button-group--horizontal .button:not(:first-child) {
+  border-left: 0;
+}
+
+.button--danger {
+  /* Background like secondary, text in danger color, no custom border */
+  --button-bg: var(--default);
+  --button-bg-hover: var(--default-hover);
+  --button-bg-pressed: var(--default-hover);
+  --button-fg: var(--danger);
+}
+
+/* Dialog surfaces are squircle-clipped by the <Squircle> wrapper, which also
+   provides the border + overlay shadow. Only the surface background is kept. */
+.alert-dialog__dialog,
+.modal__dialog,
+.drawer__dialog {
+  background: var(--overlay);
+}
+
+/* AlertDialog footer: stack the buttons so each one fills a full row */
+.alert-dialog__footer {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.alert-dialog__footer .button {
+  width: 100%;
+}
+
+/* Reduce background darkening */
+.alert-dialog__backdrop--opaque,
+.modal__backdrop--opaque,
+.drawer__backdrop--opaque,
+.alert-dialog__backdrop--blur,
+.modal__backdrop--blur,
+.drawer__backdrop--blur {
+  background-color: var(--dialog-background-darkening);
+}
+
+.progress-bar__track,
+.meter__track {
+  height: 6px;
+}
+
+.autocomplete__trigger, 
+.input,
+.number-field__group,
+.search-field__group,
+.select__trigger {
+  border-radius: 999px;
+}
+
+.slider__track {
+  height: 6px;
+}
+.slider__thumb {
+  width: 26px;
+  height: 10px;
+  opacity: 0.9;
+  border: none;
+  transition: opacity 0.3s ease;
+}
+.slider__thumb:hover {
+  opacity: 0.5;
+}
+
+.tabs__indicator:hover {
+  transform: scale(0.97);
+  transition: all 0.2s ease;
+}
+.tabs__indicator:active {
+  transform: scale(0.95);
+}
+
+/* ---------------------------------------------------------------------------
+   Transparent button variant
+   A frosted-glass button that lets the background show through (blur), shows
+   a brighter "lighted" border on the top-right and bottom-left, and reacts to
+   the pointer by moving a spotlight glow toward the cursor. The --spot-x and
+   --spot-y custom properties are set from JS on pointer move.
+   ------------------------------------------------------------------------- */
+.button-transparent {
+  position: relative;
+  overflow: hidden;
+
+  /* Frosted-glass background: see through + blur what's behind */
+  background-color: color-mix(in srgb, var(--background) 40%, transparent);
+  -webkit-backdrop-filter: blur(10px) saturate(120%);
+  backdrop-filter: blur(10px) saturate(120%);
+
+  /* Subtle hairline border — barely-there edge */
+  border-top: 0.5px solid color-mix(in srgb, var(--foreground) 12%, transparent);
+  border-bottom: 0.5px solid color-mix(in srgb, var(--foreground) 12%, transparent);
+
+  /* Directional edge light: top + right and bottom + left get a *little*
+     brightness (diagonal accent), the other corners stay dim. */
+  box-shadow:
+    inset 1px 0 0 0 rgba(255, 255, 255, 0.2),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.2),
+    inset -1px 0 0 0 rgba(255, 255, 255, 0.05),
+    inset 0 -1px 0 0 rgba(255, 255, 255, 0.05),
+    1px 0 0 0 rgba(255, 255, 255, 0.15),
+    0 1px 0 0 rgba(255, 255, 255, 0.15),
+    0 6px 16px -14px rgba(0, 0, 0, 0.35);
+
+  transition:
+    transform 250ms var(--ease-smooth),
+    box-shadow 200ms var(--ease-out),
+    border-color 200ms var(--ease-out);
+  transform: translateZ(0);
+  will-change: transform, box-shadow;
+}
+
+/* Corner light accents — a subtle tip of light on the two lit corners */
+.button-transparent::before,
+.button-transparent::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  border-radius: inherit;
+  transition: opacity 250ms var(--ease-out);
+}
+
+/* Top-right glow */
+.button-transparent::before {
+  top: 0;
+  right: 0;
+  width: 45%;
+  height: 45%;
+  background: radial-gradient(
+    circle at top right,
+    rgba(255, 255, 255, 0.16),
+    transparent 72%
+  );
+  opacity: 0.5;
+}
+
+/* Bottom-left glow */
+.button-transparent::after {
+  bottom: 0;
+  left: 0;
+  width: 45%;
+  height: 45%;
+  background: radial-gradient(
+    circle at bottom left,
+    rgba(255, 255, 255, 0.11),
+    transparent 72%
+  );
+  opacity: 0.45;
+}
+
+.button-transparent:hover,
+.button-transparent[data-hovered="true"] {
+  border-color: color-mix(in srgb, var(--foreground) 22%, transparent);
+  box-shadow:
+    inset 1px 0 0 0 rgba(255, 255, 255, 0.2),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.2),
+    inset -1px 0 0 0 rgba(255, 255, 255, 0.07),
+    inset 0 -1px 0 0 rgba(255, 255, 255, 0.07),
+    1px 0 0 0 rgba(255, 255, 255, 0.14),
+    0 1px 0 0 rgba(255, 255, 255, 0.14),
+    0 8px 20px -12px rgba(0, 0, 0, 0.4);
+}
+
+.button-transparent:hover::before,
+.button-transparent:hover::after {
+  opacity: 0.8;
+}
+
+/* Pointer-tracking spotlight that follows the cursor inside the button */
+.button-transparent .button-transparent__spot {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 200ms var(--ease-out);
+  background: radial-gradient(
+    60px circle at var(--spot-x, 50%) var(--spot-y, 50%),
+    rgba(255, 255, 255, 0.1),
+    transparent 70%
+  );
+}
+
+.button-transparent:hover .button-transparent__spot,
+.button-transparent[data-hovered="true"] .button-transparent__spot {
+  opacity: 1;
+}
+
+.button-transparent:active,
+.button-transparent[data-pressed="true"] {
+  transform: scale(0.96);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button-transparent,
+  .button-transparent .button-transparent__spot,
+  .button-transparent::before,
+  .button-transparent::after {
+    transition: none;
+  }
+}
