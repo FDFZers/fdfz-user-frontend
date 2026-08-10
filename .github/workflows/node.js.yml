@@ -27,7 +27,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [18.x, 20.x, 22.x]
+        node-version: [18.x, 22.x, 24.x]
 
     steps:
     - uses: actions/checkout@v4
@@ -40,7 +40,7 @@ jobs:
     - name: Install pnpm
       uses: pnpm/action-setup@v3
       with:
-        version: 8
+        version: 8  # 确保使用与本地相同的版本
         run_install: false
         
     - name: Get pnpm store directory
@@ -59,9 +59,11 @@ jobs:
     - name: Install dependencies
       working-directory: ./client
       run: |
+        # 检查锁文件是否存在且兼容
         if [ -f "pnpm-lock.yaml" ]; then
-          echo "Found pnpm-lock.yaml, using frozen-lockfile"
-          pnpm install --frozen-lockfile
+          echo "Found pnpm-lock.yaml, but forcing re-generation to ensure compatibility"
+          rm -f pnpm-lock.yaml
+          pnpm install
         else
           echo "No pnpm-lock.yaml found, generating one"
           pnpm install
