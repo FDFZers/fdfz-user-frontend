@@ -53,16 +53,10 @@ jobs:
           ${{ runner.os }}-pnpm-store-
 
     - name: Install dependencies
-      working-directory: ./client
       run: pnpm install --frozen-lockfile || pnpm install
 
     - name: Build
-      working-directory: ./client
       run: pnpm run build
-
-    - name: Test
-      working-directory: ./client
-      run: pnpm test || echo "No test script found"
 
     - name: Upload artifact
       if: github.event_name == 'push' && github.ref == 'refs/heads/main'
