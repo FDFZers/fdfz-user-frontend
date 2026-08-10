@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, type ReactNode } from 'react'
+import type { AuthTokens } from '../api/auth'
 
 export interface User {
   username: string
@@ -7,36 +8,46 @@ export interface User {
 
 interface AuthContextValue {
   user: User | null
-  login: (user: User) => void
+  tokens: AuthTokens | null
+  /** 保存登录后拿到的令牌与会话用户信息 */
+  login: (tokens: AuthTokens, user: User) => void
   logout: () => void
 }
 
 const STORAGE_KEY = 'ffwiki_user'
+const TOKENS_KEY = 'ffwiki_tokens'
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined)
 
-export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY)
-      return raw ? (JSON.parse(raw) as User) : null
-    } catch {
-      return null
-    }
-  })
+function readJson<T>(key: string): T | null {
+  try {
+    const raw = localStorage.getItem(key)
+    return raw ? (JSON.parse(raw) as T) : null
+  } catch {
+    return null
+  }
+}
 
-  const login = (nextUser: User) => {
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [user, setUser] = useState<User | null>(() => readJson<User>(STORAGE_KEY))
+  const [tokens, setTokens] = useState<AuthTokens | null>(() => readJson<AuthTokens>(TOKENS_KEY))
+
+  const login = (nextTokens: AuthTokens, nextUser: User) => {
+    setTokens(nextTokens)
     setUser(nextUser)
+    localStorage.setItem(TOKENS_KEY, JSON.stringify(nextTokens))
     localStorage.setItem(STORAGE_KEY, JSON.stringify(nextUser))
   }
 
   const logout = () => {
+    setTokens(null)
     setUser(null)
+    localStorage.removeItem(TOKENS_KEY)
     localStorage.removeItem(STORAGE_KEY)
   }
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, tokens, login, logout }}>
       {children}
     </AuthContext.Provider>
   )

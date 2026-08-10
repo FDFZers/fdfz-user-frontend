@@ -2,12 +2,10 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { 
   Button,
-  Description,
   FieldError,
   Form,
   Input,
   Label,
-  Spinner,
   TextField,
   Tooltip,
   Radio,
@@ -16,9 +14,7 @@ import {
 import {
   ArrowRight,
   ChevronLeft,
-  ChevronRight,
-  CircleInfo,
-  Envelope
+  CircleInfo
 } from '@gravity-ui/icons'
 import './Signup.css'
 import '../base.css'
@@ -27,22 +23,6 @@ function Signup() {
   const [step, setStep] = useState(1)
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
-  const [code, setCode] = useState('')
-  const [codeSent, setCodeSent] = useState(false)
-  const [sending, setSending] = useState(false)
-  const [error, setError] = useState('')
-
-  // 模拟发送邮箱验证码
-  const sendCode = () => {
-    setSending(true)
-    setError('')
-    // 模拟网络延迟
-    setTimeout(() => {
-      setCode(Math.floor(100000 + Math.random() * 900000).toString())
-      setCodeSent(true)
-      setSending(false)
-    }, 600)
-  }
 
   return (
     <div className="signup-page">
@@ -61,35 +41,6 @@ function Signup() {
               <FieldError />
             </TextField>
 
-            <TextField isRequired name="qq">
-              <Label>QQ ID</Label>
-              <div className="signup-authfile-row">
-                <Input type="number" />
-                <Tooltip delay={0}>
-                  <Button
-                    isIconOnly
-                    variant="tertiary"
-                    size="sm"
-                    className="signup-authfile-tip"
-                    aria-label="QQ 查看说明"
-                  >
-                    <CircleInfo />
-                  </Button>
-                  <Tooltip.Content showArrow className="signup-qq-tooltip">
-                    <Tooltip.Arrow />
-                    <p>前往 QQ <ChevronRight /> 头像 <ChevronRight /> 我的资料 <ChevronRight /> QQ 查看</p>
-                  </Tooltip.Content>
-                </Tooltip>
-              </div>
-              <FieldError />
-            </TextField>
-
-            <TextField isRequired name="email">
-              <Label>邮箱</Label>
-              <Input type="email" />
-              <FieldError />
-            </TextField>
-
             <Button type="button" size="lg" fullWidth onPress={() => setStep(2)}>
               继续 <ArrowRight />
             </Button>
@@ -101,71 +52,9 @@ function Signup() {
         {step === 2 && (
           <div className='signup-info'>
             <Form className='signup-info-form'>
-            <div className="signup-step" key="2">
-            <div className="signup-step__back">
-              <Button type="button" variant="ghost" size="sm" onPress={() => setStep(1)}>
-                <ChevronLeft /> 返回
-              </Button>
-            </div>
-            <div className="signup-code">
-              <TextField
-                isRequired
-                name="code"
-                validate={(v) => (/^\d{6}$/.test(v) ? null : '请输入 6 位数字验证码')}
-              >
-                <Label>邮箱验证码</Label>
-                <Input placeholder="6 位验证码" />
-                <FieldError />
-              </TextField>
-              <span
-                className={`signup-code__send-wrap${sending ? ' is-sending' : ''}`}
-                style={{ width: sending ? '9.5rem' : '7.25rem' }}
-              >
-                <Button
-                  type="button"
-                  variant="ghost"
-                  onPress={sendCode}
-                  isDisabled={sending}
-                  className="signup-code__send"
-                  fullWidth
-                >
-                  <Envelope />
-                  {sending ? (
-                    <>
-                      <Spinner color="current" />
-                      发送中
-                    </>
-                  ) : codeSent ? (
-                    '重新发送'
-                  ) : (
-                    '获取验证码'
-                  )}
-                </Button>
-              </span>
-            </div>
-
-            {codeSent && (
-              <p className="signup-code__hint">
-                模拟验证码已发送至邮箱：<strong>{code}</strong>
-              </p>
-            )}
-
-            {error && <p className="signup-page__error">{error}</p>}
-
-            <Button type="button" size="lg" fullWidth onPress={() => setStep(3)}>
-              设置密码 <ArrowRight />
-            </Button>
-            </div>
-            </Form>
-          </div>
-        )}
-
-        {step === 3 && (
-          <div className='signup-info'>
-            <Form className='signup-info-form'>
             <div className="signup-step" key="3">
             <div className="signup-step__back">
-              <Button type="button" variant="ghost" size="sm" onPress={() => setStep(2)}>
+              <Button type="button" variant="ghost" size="sm" onPress={() => setStep(1)}>
                 <ChevronLeft /> 返回
               </Button>
             </div>
@@ -197,7 +86,7 @@ function Signup() {
               <p className="signup-password-mismatch">两次输入的密码不一致</p>
             )}
 
-            <Button type="button" size="lg" fullWidth onPress={() => setStep(4)}>
+            <Button type="button" size="lg" fullWidth onPress={() => setStep(3)}>
               验证您的身份 <ArrowRight />
             </Button>
             </div>
@@ -205,10 +94,10 @@ function Signup() {
           </div>
         )}
 
-        {step === 4 && (
+        {step === 3 && (
           <div className='signup-auth'>
             <div className="signup-auth__back">
-              <Button variant="ghost" size="sm" onPress={() => setStep(3)}>
+              <Button variant="ghost" size="sm" onPress={() => setStep(2)}>
                 <ChevronLeft /> 返回
               </Button>
             </div>
@@ -225,7 +114,6 @@ function Signup() {
                   </Radio.Control>
                   本部
                 </Radio.Content>
-                <Description>静安分校同学请先选本部</Description>
               </Radio>
               <Radio value="pudong">
                 <Radio.Content>
@@ -253,7 +141,7 @@ function Signup() {
               </Radio>
             </RadioGroup>
 
-            <Button type="button" size="lg" fullWidth onPress={() => setStep(5)}>
+            <Button type="button" size="lg" fullWidth onPress={() => setStep(4)}>
               继续 <ArrowRight />
             </Button>
             </div>
@@ -261,10 +149,10 @@ function Signup() {
           </div>
         )}
 
-        {step === 5 && (
+        {step === 4 && (
           <div className='signup-auth'>
             <div className="signup-auth__back">
-              <Button variant="ghost" size="sm" onPress={() => setStep(4)}>
+              <Button variant="ghost" size="sm" onPress={() => setStep(3)}>
                 <ChevronLeft /> 返回
               </Button>
             </div>
@@ -288,7 +176,10 @@ function Signup() {
                   </Button>
                   <Tooltip.Content showArrow className="signup-authfile-tooltip">
                     <Tooltip.Arrow />
-                    <p>学号为 8 位数字，可在校园卡或学生证上找到</p>
+                    <strong>根据分校情况调整班级号</strong>
+                    <p>浦东分校 <strong>+20</strong>，如 20292101</p>
+                    <p>青浦分校 <strong>+40</strong>，如 20294101</p>
+                    <p>徐汇分校 <strong>+60</strong>，如 20296101</p>
                   </Tooltip.Content>
                 </Tooltip>
               </div>

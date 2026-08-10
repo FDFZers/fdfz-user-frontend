@@ -126,8 +126,56 @@
   cursor: pointer;
 }
 
-/* Small screens: tighten spacing and let the "获取验证码" button wrap below
-   the code input so the row never overflows horizontally. */
+/* 内部步骤的独立表单 */
+.login-step__inner {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* 人机验证步骤 */
+.login-challenge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 0;
+}
+
+.login-challenge__hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  font-size: 0.875rem;
+  color: color-mix(in srgb, var(--foreground) 70%, transparent);
+}
+
+.login-page__hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  font-size: 0.875rem;
+  color: color-mix(in srgb, var(--foreground) 70%, transparent);
+  text-align: center;
+  justify-content: center;
+}
+
+/* QQ 验证码展示 */
+.login-qq-code {
+  margin: 0;
+  padding: 0.75rem;
+  border-radius: var(--radius-md, 0.5rem);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent);
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-align: center;
+}
+
+/* 小屏适配 */
 @media (max-width: 380px) {
   .login-page {
     padding: 1rem;
