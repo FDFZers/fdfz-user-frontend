@@ -8,14 +8,12 @@
 
 /* ---------------------------------------------------------------------------
    Auth page cards (login / signup)
-   A raised surface card that lifts the form off the app background. The card
-   uses a fill *darker* than the default input field background
-   (--field-background), so the inputs keep their default color and still
-   read clearly against the card.
+   A raised surface card that lifts the form off the app background. Inputs
+   use variant="secondary" (no shadow) to sit naturally on the surface.
    ------------------------------------------------------------------------- */
 .login-page__card,
 .signup-page__card {
-  background: var(--background-secondary);
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: calc(var(--radius) * 2);
   box-shadow: var(--surface-shadow);

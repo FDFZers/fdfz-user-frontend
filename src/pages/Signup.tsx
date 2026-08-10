@@ -38,7 +38,7 @@ function Signup() {
             <div className="signup-step" key="1">
             <TextField isRequired name="account">
               <Label>用户名</Label>
-              <Input />
+              <Input variant="secondary" />
               <FieldError />
             </TextField>
 
@@ -68,7 +68,7 @@ function Signup() {
               onChange={setPassword}
             >
               <Label>设置密码</Label>
-              <Input />
+              <Input variant="secondary" />
               <FieldError />
             </TextField>
 
@@ -80,7 +80,7 @@ function Signup() {
               onChange={setConfirm}
             >
               <Label>确认您的密码</Label>
-              <Input />
+              <Input variant="secondary" />
               <FieldError />
             </TextField>
             {confirm.length > 0 && password !== confirm && (
@@ -163,7 +163,7 @@ function Signup() {
             <TextField isRequired name="school-num">
               <Label>8 位学号</Label>
               <div className="signup-authfile-row">
-                <Input />
+                <Input variant="secondary" />
                 <Tooltip delay={0}>
                   <Button
                     isIconOnly
@@ -188,7 +188,7 @@ function Signup() {
 
             <TextField isRequired name="realname">
               <Label>真实姓名</Label>
-              <Input />
+              <Input variant="secondary" />
               <FieldError />
             </TextField>
 

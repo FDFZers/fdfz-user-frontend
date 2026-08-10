@@ -27,7 +27,6 @@ export interface AuthSession {
 export interface AuthTokens {
   token: string
   refresh_token: string
-  trust_token: string
   token_expires_at: string
   refresh_token_expires_at: string
 }
@@ -39,11 +38,9 @@ export function getChallenge(): Promise<AltchaChallenge> {
 
 /** 请求登录，创建鉴权会话 */
 export function initLogin(
-  trustToken: string | null,
   altchaPayload: string,
 ): Promise<{ session_id: string }> {
   return api.post<{ session_id: string }>('/auth/login/init', {
-    trust_token: trustToken,
     altcha_payload: altchaPayload,
   })
 }

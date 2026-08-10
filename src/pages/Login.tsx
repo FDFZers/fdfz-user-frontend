@@ -55,7 +55,7 @@ function errMsg(e: unknown): string {
 
 function Login() {
   const navigate = useNavigate()
-  const { login, tokens } = useAuth()
+  const { login } = useAuth()
 
   const [phase, setPhase] = useState<Phase>('account')
   const [account, setAccount] = useState('')
@@ -153,7 +153,7 @@ function Login() {
     setSubmitting(true)
     setError('')
     try {
-      const { session_id } = await initLogin(tokens?.trust_token ?? null, payload)
+      const { session_id } = await initLogin(payload)
       setSessionId(session_id)
       setPhase('verify')
       await refreshSession(session_id)
@@ -266,7 +266,7 @@ function Login() {
             <Form onSubmit={submitAccount} className="login-step__inner">
               <TextField isRequired name="email">
                 <Label className="ml-2">用户名或邮箱</Label>
-                <Input />
+                <Input variant="secondary" />
                 <FieldError />
               </TextField>
               <Button type="submit" variant="primary" size="lg" fullWidth>
@@ -313,7 +313,7 @@ function Login() {
               <Form onSubmit={submitPassword} className="login-step__inner">
                 <TextField isRequired name="password" type="password">
                   <Label className="ml-2">密码</Label>
-                  <Input placeholder="请输入密码" />
+                  <Input variant="secondary" placeholder="请输入密码" />
                   <FieldError />
                 </TextField>
                 {error && <p className="login-page__error">{error}</p>}
@@ -339,7 +339,7 @@ function Login() {
                     validate={(v) => (/^\d{6}$/.test(v) ? null : '请输入 6 位数字验证码')}
                   >
                     <Label className="ml-2">邮箱验证码</Label>
-                    <Input placeholder="6 位验证码" />
+                    <Input variant="secondary" placeholder="6 位验证码" />
                     <FieldError />
                   </TextField>
                   <span
@@ -408,7 +408,7 @@ function Login() {
                   validate={(v) => (/^\d{6}$/.test(v) ? null : '请输入 6 位数字验证码')}
                 >
                   <Label className="ml-2">TOTP 验证码</Label>
-                  <Input placeholder="6 位验证码" />
+                  <Input variant="secondary" placeholder="6 位验证码" />
                   <FieldError />
                 </TextField>
                 {error && <p className="login-page__error">{error}</p>}
