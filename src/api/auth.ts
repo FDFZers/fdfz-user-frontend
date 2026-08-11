@@ -161,7 +161,7 @@ export interface RegisterParams {
 
 /**
  * 请求注册（multipart/form-data）。
- * 发送注册请求给管理员，需先通过 ALTCHA 人机验证获取 altchaPayload。
+ * 需先通过 ALTCHA 人机验证获取 altchaPayload。
  */
 export function register(params: RegisterParams): Promise<Record<string, never>> {
   const form = new FormData()

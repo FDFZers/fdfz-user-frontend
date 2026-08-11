@@ -15,6 +15,7 @@ import AltchaChallenge from '../components/AltchaChallenge'
 import {
   cancelSession,
   finalizeLogin,
+  getChallenge,
   getSession,
   initLogin,
   requestEmailCode,
@@ -61,7 +62,7 @@ function Login() {
   const [password, setPassword] = useState('')
   const [emailCode, setEmailCode] = useState('')
   const [totpCode, setTotpCode] = useState('')
-  const [challenge] = useState<Challenge | null>(null)
+  const [challenge, setChallenge] = useState<Challenge | null>(null)
   const [sessionId, setSessionId] = useState<string | null>(null)
   const [session, setSession] = useState<AuthSession | null>(null)
 
@@ -184,17 +185,20 @@ function Login() {
     [submitting, sessionId, goPhase, refreshSession],
   )
 
-  // 第一步：填写邮箱。
-  // 【临时测试】跳过 ALTCHA，直接以占位 payload 创建登录会话，便于测试后续流程。
-  // 恢复 ALTCHA 后：应先 setChallenge(await getChallenge()) 进入 challenge 阶段，
-  // 由 AltchaChallenge 验证通过后回调 onAltchaVerified(payload)。
+  // 第一步：填写邮箱，获取并展示 ALTCHA Challenge
   const submitAccount = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setError('')
     const email = account.trim()
     if (!email) return
     setAccount(email)
-    await startLogin('skipped-altcha-payload')
+    goPhase('challenge')
+    try {
+      setChallenge(await getChallenge())
+    } catch (err) {
+      setError(errMsg(err))
+      goPhase('account')
+    }
   }
 
   // ALTCHA 验证通过后，用 payload 创建登录鉴权会话

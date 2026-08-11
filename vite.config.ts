@@ -7,14 +7,12 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
     port: 5173,
-    // Proxy API requests to the Go backend during development.
-    // Frontend calls `/api/...`, the rewrite strips `/api` so the backend
-    // receives the documented `/auth/...` paths.
+    // 开发环境下将 `/api` 代理到后端，避免跨域 CORS 问题。
+    // 前端请求 `/api/v1/...`，代理原样转发到 https://space.dev.fdfz.top/api/v1/...
     proxy: {
       '/api': {
-        target: 'http://localhost:11450',
+        target: 'https://space.dev.fdfz.top',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ''),
       },
     },
   },

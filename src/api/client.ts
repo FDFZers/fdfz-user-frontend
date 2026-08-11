@@ -1,6 +1,6 @@
 // 统一的 API 请求封装。
-// 后端连接主目录（Apifox Mock 服务器），所有接口在此基础路径下拼接。
-export const API_BASE = 'http://127.0.0.1:4523/m1/8686325-8470616-default'
+// 开发环境下由 Vite 将 `/api` 代理到后端（见 vite.config.ts），避免跨域 CORS。
+export const API_BASE = '/api/v1'
 
 export class ApiError extends Error {
   status: number
