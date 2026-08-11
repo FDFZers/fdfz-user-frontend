@@ -36,7 +36,8 @@ jobs:
     - name: Install pnpm
       uses: pnpm/action-setup@v3
       with:
-        version: 8
+        # Match the pnpm version declared in package.json (packageManager).
+        version: 11.20.0
         run_install: false
         
     - name: Get pnpm store directory
@@ -48,12 +49,12 @@ jobs:
       uses: actions/cache@v4
       with:
         path: ${{ env.STORE_PATH }}
-        key: ${{ runner.os }}-pnpm-store-${{ hashFiles('client/pnpm-lock.yaml') }}
+        key: ${{ runner.os }}-pnpm-store-${{ hashFiles('pnpm-lock.yaml') }}
         restore-keys: |
           ${{ runner.os }}-pnpm-store-
 
     - name: Install dependencies
-      run: pnpm install --frozen-lockfile || pnpm install
+      run: pnpm install --frozen-lockfile
 
     - name: Build
       run: pnpm run build
@@ -62,4 +63,4 @@ jobs:
       if: github.event_name == 'push' && github.ref == 'refs/heads/main'
       uses: actions/upload-pages-artifact@v3
       with:
-        path: ./client/dist
+        path: ./dist

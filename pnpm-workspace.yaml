@@ -1,2 +1,9 @@
+# Single-package workspace rooted at the repository root.
+# The `packages` field is required by pnpm's workspace manifest
+# validation (otherwise: "packages field missing or empty").
+packages:
+  - "."
+
+# pnpm 11: allow the esbuild postinstall build script.
 allowBuilds:
   esbuild: true
