@@ -15,6 +15,7 @@
     "@heroui/react": "^3.0.0",
     "@heroui/styles": "^3.0.0",
     "altcha": "^3.2.1",
+    "pnpm": "^11.21.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-router-dom": "^7.18.2"

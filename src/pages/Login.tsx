@@ -59,12 +59,20 @@ function Login() {
 
   const [phase, setPhase] = useState<Phase>('account')
   const [account, setAccount] = useState('')
+  const [password, setPassword] = useState('')
+  const [emailCode, setEmailCode] = useState('')
+  const [totpCode, setTotpCode] = useState('')
   const [challenge, setChallenge] = useState<Challenge | null>(null)
   const [sessionId, setSessionId] = useState<string | null>(null)
   const [session, setSession] = useState<AuthSession | null>(null)
 
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
+
+  const isAccountValid = account.trim().length > 0
+  const isPasswordValid = password.length > 0
+  const isEmailCodeValid = CODE_RE.test(emailCode)
+  const isTotpValid = CODE_RE.test(totpCode)
 
   // 邮箱验证码步骤
   const [codeSent, setCodeSent] = useState(false)
@@ -146,7 +154,7 @@ function Login() {
   const submitAccount = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setError('')
-    const email = String(new FormData(e.currentTarget).get('email') ?? '').trim()
+    const email = account.trim()
     if (!email) return
     setAccount(email)
     goPhase('challenge')
@@ -178,9 +186,12 @@ function Login() {
   const submitPassword = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!sessionId) return
+    if (!isPasswordValid) {
+      setError('请输入密码')
+      return
+    }
     setSubmitting(true)
     setError('')
-    const password = String(new FormData(e.currentTarget).get('password') ?? '')
     try {
       await verifyPassword(sessionId, account, password)
       await refreshSession(sessionId)
@@ -208,16 +219,14 @@ function Login() {
   const submitEmailCode = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!sessionId) return
-    setSubmitting(true)
-    setError('')
-    const code = String(new FormData(e.currentTarget).get('code') ?? '')
-    if (!CODE_RE.test(code)) {
+    if (!isEmailCodeValid) {
       setError('请输入 6 位数字验证码')
-      setSubmitting(false)
       return
     }
+    setSubmitting(true)
+    setError('')
     try {
-      await verifyEmailCode(code)
+      await verifyEmailCode(emailCode)
       await refreshSession(sessionId)
     } catch (err) {
       setError(errMsg(err))
@@ -229,11 +238,14 @@ function Login() {
   const submitTotp = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!sessionId) return
+    if (!isTotpValid) {
+      setError('请输入 6 位数字验证码')
+      return
+    }
     setSubmitting(true)
     setError('')
-    const code = String(new FormData(e.currentTarget).get('code') ?? '')
     try {
-      await verifyTotp(sessionId, code)
+      await verifyTotp(sessionId, totpCode)
       await refreshSession(sessionId)
     } catch (err) {
       setError(errMsg(err))
@@ -302,10 +314,20 @@ function Login() {
             <Form onSubmit={submitAccount} className="login-step__inner">
               <TextField isRequired name="email">
                 <Label className="ml-2">用户名或邮箱</Label>
-                <Input variant="secondary" />
+                <Input
+                  variant="secondary"
+                  value={account}
+                  onChange={(event) => setAccount(event.target.value)}
+                />
                 <FieldError />
               </TextField>
-              <Button type="submit" variant="primary" size="lg" fullWidth>
+              <Button
+                type="submit"
+                variant="primary"
+                size="lg"
+                fullWidth
+                isDisabled={!isAccountValid}
+              >
                 继续 <ArrowRight />
               </Button>
             </Form>
@@ -349,7 +371,13 @@ function Login() {
               <Form onSubmit={submitPassword} className="login-step__inner">
                 <TextField isRequired name="password" type="password">
                   <Label className="ml-2">密码</Label>
-                  <Input variant="secondary" placeholder="请输入密码" />
+                  <Input
+                    variant="secondary"
+                    placeholder="请输入密码"
+                    type="password"
+                    value={password}
+                    onChange={(event) => setPassword(event.target.value)}
+                  />
                   <FieldError />
                 </TextField>
                 {error && <p className="login-page__error">{error}</p>}
@@ -358,7 +386,7 @@ function Login() {
                   variant="primary"
                   size="lg"
                   fullWidth
-                  isDisabled={submitting}
+                  isDisabled={submitting || !isPasswordValid}
                 >
                   {submitting ? <Spinner color="current" /> : null}
                   继续 <ArrowRight />
@@ -375,7 +403,12 @@ function Login() {
                     validate={(v) => (/^\d{6}$/.test(v) ? null : '请输入 6 位数字验证码')}
                   >
                     <Label className="ml-2">邮箱验证码</Label>
-                    <Input variant="secondary" placeholder="6 位验证码" />
+                    <Input
+                      variant="secondary"
+                      placeholder="6 位验证码"
+                      value={emailCode}
+                      onChange={(event) => setEmailCode(event.target.value)}
+                    />
                     <FieldError />
                   </TextField>
                   <span
@@ -411,7 +444,7 @@ function Login() {
                   variant="primary"
                   size="lg"
                   fullWidth
-                  isDisabled={submitting}
+                  isDisabled={submitting || !isEmailCodeValid}
                 >
                   {submitting ? (
                     <>
@@ -444,7 +477,12 @@ function Login() {
                   validate={(v) => (/^\d{6}$/.test(v) ? null : '请输入 6 位数字验证码')}
                 >
                   <Label className="ml-2">TOTP 验证码</Label>
-                  <Input variant="secondary" placeholder="6 位验证码" />
+                  <Input
+                    variant="secondary"
+                    placeholder="6 位验证码"
+                    value={totpCode}
+                    onChange={(event) => setTotpCode(event.target.value)}
+                  />
                   <FieldError />
                 </TextField>
                 {error && <p className="login-page__error">{error}</p>}
@@ -453,7 +491,7 @@ function Login() {
                   variant="primary"
                   size="lg"
                   fullWidth
-                  isDisabled={submitting}
+                  isDisabled={submitting || !isTotpValid}
                 >
                   {submitting ? (
                     <>
