@@ -69,15 +69,15 @@ function App() {
   }
 
   return (
-    <div className="app-shell">
+    <div className="app-shell flex h-screen overflow-hidden">
       <Sidebar collapsed={collapsed} />
       {isMobile && !collapsed && (
         <div className="sidebar-backdrop" onClick={toggleSidebar} aria-hidden="true" />
       )}
 
-      <div className="app-main">
-        <header className="app-header">
-          <div className="app-header__left">
+      <div className="app-main flex flex-1 min-w-0 flex-col overflow-hidden">
+        <header className="app-header flex items-center justify-between gap-4 px-4 py-3 sticky top-0 z-10 bg-[color-mix(in_srgb,var(--background)_92%,transparent)] backdrop-blur-[10px] max-[767px]:px-3 max-[767px]:py-2.5">
+          <div className="app-header__left flex items-center gap-2">
             <Button
               variant="ghost"
               size="md"
@@ -89,7 +89,7 @@ function App() {
             </Button>
           </div>
 
-          <div className="app-header__right">
+          <div className="app-header__right flex items-center gap-2">
             <Tabs selectedKey={theme} onSelectionChange={handleThemeChange}>
               <Tabs.ListContainer>
                 <Tabs.List aria-label="主题">
@@ -107,7 +107,7 @@ function App() {
           </div>
         </header>
 
-        <main className="app-content">
+        <main className="app-content flex-1 overflow-y-auto px-7 py-6 bg-[color-mix(in_srgb,var(--background)_92%,transparent)] max-[767px]:px-4 max-[767px]:py-4">
           <Outlet />
         </main>
       </div>

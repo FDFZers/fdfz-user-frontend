@@ -84,17 +84,17 @@ function Signup() {
   }, [step])
 
   return (
-    <div className="signup-page">
-      <div className="signup-page__card" ref={cardRef}>
-        <div className="signup-page__header">
-          <h1>注册</h1>
-          <p>欢迎来到 FF Wiki！</p>
+    <div className="signup-page flex min-h-screen w-full max-w-[460px] flex-col justify-center px-6 pt-12 pb-16 mx-auto max-[380px]:px-4 max-[380px]:py-4">
+      <div className="signup-page__card overflow-hidden p-7" ref={cardRef}>
+        <div className="signup-page__header mb-6">
+          <h1 className="m-0 mb-1 text-2xl font-semibold text-[var(--foreground)]">注册</h1>
+          <p className="m-0 text-sm text-[color-mix(in_srgb,var(--foreground)_60%,transparent)]">欢迎来到 FF Wiki！</p>
         </div>
 
         {step === 1 && (
           <div className='signup-info'>
-            <Form className='signup-info-form'>
-            <div className="signup-step" key="1">
+            <Form className='signup-info-form flex flex-col gap-5'>
+            <div className="signup-step flex flex-col gap-5" key="1">
             <TextField isRequired name="account">
               <Label>用户名</Label>
               <Input
@@ -121,9 +121,9 @@ function Signup() {
 
         {step === 2 && (
           <div className='signup-info'>
-            <Form className='signup-info-form'>
-            <div className="signup-step" key="3">
-            <div className="signup-step__back">
+            <Form className='signup-info-form flex flex-col gap-5'>
+            <div className="signup-step flex flex-col gap-5" key="3">
+            <div className="signup-step__back text-[8px] p-1">
               <Button type="button" variant="ghost" size="sm" onPress={() => goStep(1)}>
                 <ChevronLeft /> 返回
               </Button>
@@ -151,7 +151,7 @@ function Signup() {
               <FieldError />
             </TextField>
             {passwordMismatch && (
-              <p className="signup-password-mismatch">两次输入的密码不一致</p>
+              <p className="signup-password-mismatch -mt-2 text-[13px] text-[var(--danger)]">两次输入的密码不一致</p>
             )}
 
             <Button
@@ -170,14 +170,14 @@ function Signup() {
 
         {step === 3 && (
           <div className='signup-auth'>
-            <div className="signup-auth__back">
+            <div className="signup-auth__back text-[8px] mb-3 p-1">
               <Button variant="ghost" size="sm" onPress={() => goStep(2)}>
                 <ChevronLeft /> 返回
               </Button>
             </div>
 
-          <Form className='signup-auth-form'>
-            <div className="signup-step" key="4">
+          <Form className='signup-auth-form flex flex-col gap-5'>
+            <div className="signup-step flex flex-col gap-5" key="4">
             <Label>所在学校</Label>
             <RadioGroup
               value={school}
@@ -235,18 +235,18 @@ function Signup() {
 
         {step === 4 && (
           <div className='signup-auth'>
-            <div className="signup-auth__back">
+            <div className="signup-auth__back text-[8px] mb-3 p-1">
               <Button variant="ghost" size="sm" onPress={() => goStep(3)}>
                 <ChevronLeft /> 返回
               </Button>
             </div>
-            <h1>我们需要验证您确实是复旦附中的学生。</h1>
+            <h1 className="m-0 mb-5 text-lg font-semibold text-center text-[var(--foreground)]">我们需要验证您确实是复旦附中的学生。</h1>
 
-          <Form className='signup-auth-form' onSubmit={handleSubmit}>
-            <div className="signup-step" key="5">
+          <Form className='signup-auth-form flex flex-col gap-5' onSubmit={handleSubmit}>
+            <div className="signup-step flex flex-col gap-5" key="5">
             <TextField isRequired name="school-num">
               <Label>8 位学号</Label>
-              <div className="signup-authfile-row">
+              <div className="signup-authfile-row flex items-center gap-2">
                 <Input
                   variant="secondary"
                   value={studentNumber}
@@ -257,12 +257,12 @@ function Signup() {
                     isIconOnly
                     variant="tertiary"
                     size="sm"
-                    className="signup-authfile-tip"
+                    className="signup-authfile-tip shrink-0"
                     aria-label="学号说明"
                   >
                     <CircleInfo />
                   </Button>
-                  <Tooltip.Content showArrow className="signup-authfile-tooltip">
+                  <Tooltip.Content showArrow className="signup-authfile-tooltip max-w-64">
                     <Tooltip.Arrow />
                     <strong>根据分校情况调整班级号</strong>
                     <p>浦东分校 <strong>+20</strong>，如 20292101</p>
@@ -284,14 +284,14 @@ function Signup() {
               <FieldError />
             </TextField>
 
-            <div className="signup-authfile-field">
+            <div className="signup-authfile-field flex flex-col gap-2">
               <Label>上传凭据以证明您的身份</Label>
-              <div className="signup-authfile-row">
+              <div className="signup-authfile-row flex items-center gap-2">
                 <input
                   type="file"
                   name="authfile"
                   required
-                  className="signup-authfile-input"
+                  className="signup-authfile-input flex-1 min-w-0 w-full px-3 py-2.5 rounded-xl border border-[color-mix(in_srgb,var(--foreground)_15%,transparent)] bg-[color-mix(in_srgb,var(--foreground)_4%,transparent)] text-[var(--foreground)] text-sm cursor-pointer [font:inherit]"
                   onChange={(event) => setAuthFile(event.target.files?.[0]?.name ?? '')}
                 />
                 <Tooltip delay={0}>
@@ -299,12 +299,12 @@ function Signup() {
                     isIconOnly
                     variant="tertiary"
                     size="sm"
-                    className="signup-authfile-tip"
+                    className="signup-authfile-tip shrink-0"
                     aria-label="上传凭据说明"
                   >
                     <CircleInfo />
                   </Button>
-                  <Tooltip.Content showArrow className="signup-authfile-tooltip">
+                  <Tooltip.Content showArrow className="signup-authfile-tooltip max-w-64">
                     <Tooltip.Arrow />
                     <p>例如校园卡、云校截图等</p>
                   </Tooltip.Content>
@@ -321,8 +321,8 @@ function Signup() {
         )}
       </div>
 
-      <p className="signup-page__footer">
-        已有账号？<Link className="signup-page__link" to="/login">去登录</Link>
+      <p className="signup-page__footer mt-5 text-center text-sm text-[color-mix(in_srgb,var(--foreground)_60%,transparent)]">
+        已有账号？<Link className="signup-page__link text-[var(--accent)] no-underline" to="/login">去登录</Link>
       </p>
     </div>
   )

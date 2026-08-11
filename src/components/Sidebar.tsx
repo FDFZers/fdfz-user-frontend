@@ -112,20 +112,20 @@ function Sidebar({ collapsed }: SidebarProps) {
               variant="ghost"
               size="md"
               fullWidth
-              onPress={() => navigate('/login')}
+              onPress={() => navigate('/signup')}
               className="mb-2"
             >
-              <ArrowRightToSquare className="mr-2"/>
-              登录
+              <PencilToSquare className="mr-2"/>
+              注册
             </Button>
             <Button
               variant="primary"
               size="md"
               fullWidth
-              onPress={() => navigate('/signup')}
+              onPress={() => navigate('/login')}
             >
-              <PencilToSquare className="mr-2"/>
-              注册
+              <ArrowRightToSquare className="mr-2"/>
+              登录
             </Button>
           </>
         )}

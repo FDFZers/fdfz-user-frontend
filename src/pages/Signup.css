@@ -1,190 +1,32 @@
+/* ---------------------------------------------------------------------------
+   Signup — only rules Tailwind utilities can't cleanly express (animations,
+   the card height transition, and the file-upload pseudo-element button).
+   Layout, spacing and color now live as Tailwind classes in Signup.tsx.
+   ------------------------------------------------------------------------- */
 .signup-page {
-  min-height: 100vh;
-  width: 100%;
-  max-width: 460px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 3rem 1.5rem 4rem;
   animation: signup-page-in 0.45s var(--ease-out) both;
 }
 
 @keyframes signup-page-in {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
 }
+
 .signup-page__card {
   border-radius: 32px;
-  overflow: hidden;
   transition: height 0.3s var(--ease-out);
 }
 
-.signup-page__header {
-  margin-bottom: 1.5rem;
-}
-
-.signup-page__header h1 {
-  margin: 0 0 0.25rem;
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: var(--foreground);
-}
-
-.signup-page__header p {
-  margin: 0;
-  font-size: 0.875rem;
-  color: color-mix(in srgb, var(--foreground) 60%, transparent);
-}
-
-.signup-page__body {
-  min-height: 10rem;
-}
-
-.signup-page__footer {
-  margin: 1.25rem 0 0;
-  text-align: center;
-  font-size: 0.875rem;
-  color: color-mix(in srgb, var(--foreground) 60%, transparent);
-}
-
-.signup-page__link {
-  color: var(--accent);
-  text-decoration: none;
-}
-
-.signup-info-form,
-.signup-auth-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-}
-
 .signup-step {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
   animation: signup-step-in 0.4s var(--ease-out) both;
 }
 
-.signup-step__back {
-  font-size: 0.5rem;
-  padding: 0.25rem;
-}
-
 @keyframes signup-step-in {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-/* 邮箱验证码 */
-.signup-code {
-  display: flex;
-  align-items: flex-end;
-  gap: 0.5rem;
-}
-
-.signup-code .signup-code__send-wrap {
-  flex-shrink: 0;
-  overflow: hidden;
-  transition: width 0.3s var(--ease-out);
-}
-
-.signup-code .signup-code__send-wrap .signup-code__send {
-  width: 100%;
-  white-space: nowrap;
-}
-
-.signup-code__hint {
-  margin: -0.5rem 0 0;
-  font-size: 0.8125rem;
-  color: var(--accent);
-  animation: signup-fade-slide-in 0.3s var(--ease-out) both;
-}
-
-.signup-code__hint strong {
-  letter-spacing: 0.1em;
-}
-
-.signup-page__error {
-  margin: 0;
-  font-size: 0.875rem;
-  color: var(--danger);
-  text-align: center;
-  animation: signup-fade-slide-in 0.3s var(--ease-out) both;
-}
-
-@keyframes signup-fade-slide-in {
-  from {
-    opacity: 0;
-    transform: translateY(4px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.signup-auth h1 {
-  margin: 0 0 1.25rem;
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: var(--foreground);
-  text-align: center;
-}
-
-.signup-auth__back {
-  font-size: 0.5rem;
-  margin-bottom: 0.75rem;
-  padding: 0.25rem;
-}
-
-/* 实时密码一致性提示 */
-.signup-password-mismatch {
-  margin: -0.5rem 0 0;
-  font-size: 0.8125rem;
-  color: var(--danger);
-}
-
-/* 上传凭据输入框与说明图标并排 */
-.signup-authfile-field {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.signup-authfile-row {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.signup-authfile-input {
-  flex: 1;
-  min-width: 0;
-  width: 100%;
-  padding: 0.6rem 0.75rem;
-  border-radius: 0.75rem;
-  border: 1px solid color-mix(in srgb, var(--foreground) 15%, transparent);
-  background: color-mix(in srgb, var(--foreground) 4%, transparent);
-  color: var(--foreground);
-  font: inherit;
-  font-size: 0.9rem;
-  cursor: pointer;
-}
-
+/* File-upload button (pseudo-element) */
 .signup-authfile-input::file-selector-button {
   margin-right: 0.75rem;
   padding: 0.3rem 0.75rem;
@@ -196,59 +38,14 @@
   cursor: pointer;
   transition: background-color 150ms var(--ease-out);
 }
-
 .signup-authfile-input::file-selector-button:hover {
   background: color-mix(in srgb, var(--foreground) 18%, transparent);
 }
 
-.signup-authfile-tip {
-  flex-shrink: 0;
-}
-
-/* 上传凭据 Tooltip 宽度适中，文本可换行 */
-.signup-authfile-tooltip {
-  max-width: 16rem;
-}
-
-/* 表单行内输入框占满剩余宽度，与说明图标并排 */
+/* Inline inputs inside credential rows should fill remaining width */
 .signup-info-form .signup-authfile-row .input,
 .signup-auth-form .signup-authfile-row .input {
   flex: 1;
   min-width: 0;
   width: 100%;
-}
-
-/* Tooltip 足够长，文本保持在一行 */
-.signup-qq-tooltip {
-  max-width: none !important;
-  white-space: nowrap !important;
-}
-
-.signup-qq-tooltip p {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  margin: 0;
-  white-space: nowrap !important;
-}
-
-.signup-qq-tooltip p svg {
-  display: inline;
-  flex-shrink: 0;
-}
-
-/* Small screens: tighten spacing and let the "获取验证码" button wrap below
-   the code input so the row never overflows horizontally. */
-@media (max-width: 380px) {
-  .signup-page {
-    padding: 1rem;
-  }
-
-  .signup-code {
-    flex-wrap: wrap;
-  }
-
-  .signup-code .signup-code__send-wrap {
-    width: 100% !important;
-  }
 }

@@ -301,17 +301,17 @@ function Login() {
   }, [phase, currentStep])
 
   return (
-    <div className="login-page">
-      <div className="login-page__card" ref={cardRef}>
-        <div className="login-page__header">
-          <h1>登录</h1>
-          <p>欢迎回来，请输入账号信息</p>
+    <div className="login-page flex min-h-screen w-full max-w-[460px] flex-col justify-center px-6 py-10 mx-auto max-[380px]:px-4 max-[380px]:py-4">
+      <div className="login-page__card overflow-hidden p-7" ref={cardRef}>
+        <div className="login-page__header mb-6">
+          <h1 className="m-0 mb-1 text-2xl font-semibold text-[var(--foreground)]">登录</h1>
+          <p className="m-0 text-sm text-[color-mix(in_srgb,var(--foreground)_60%,transparent)]">欢迎回来，请输入账号信息</p>
         </div>
 
-        <div className="login-form">
+        <div className="login-form flex flex-col gap-5">
         {phase === 'account' && (
-          <div className="login-step" key="account">
-            <Form onSubmit={submitAccount} className="login-step__inner">
+          <div className="login-step flex flex-col gap-5" key="account">
+            <Form onSubmit={submitAccount} className="login-step__inner flex flex-col gap-5">
               <TextField isRequired name="email">
                 <Label className="ml-2">用户名或邮箱</Label>
                 <Input
@@ -335,40 +335,40 @@ function Login() {
         )}
 
         {phase === 'challenge' && (
-          <div className="login-step" key="challenge">
-            <div className="login-step__back">
+          <div className="login-step flex flex-col gap-5" key="challenge">
+            <div className="login-step__back text-[8px] p-1">
               <Button type="button" variant="ghost" size="sm" onPress={goBackToAccount}>
                 <ChevronLeft /> 返回
               </Button>
             </div>
-            <div className="login-challenge">
+            <div className="login-challenge flex flex-col items-center gap-4 py-4">
               {challenge ? (
                 <AltchaChallenge challenge={challenge} onVerified={onAltchaVerified} />
               ) : (
-                <p className="login-challenge__hint">
+                <p className="login-challenge__hint inline-flex items-center gap-2 m-0 text-sm text-[color-mix(in_srgb,var(--foreground)_70%,transparent)]">
                   <Spinner color="current" /> 正在加载人机验证…
                 </p>
               )}
               {submitting && (
-                <p className="login-challenge__hint">
+                <p className="login-challenge__hint inline-flex items-center gap-2 m-0 text-sm text-[color-mix(in_srgb,var(--foreground)_70%,transparent)]">
                   <Spinner color="current" /> 正在创建登录会话…
                 </p>
               )}
             </div>
-            {error && <p className="login-page__error">{error}</p>}
+            {error && <p className="login-page__error m-0 text-sm text-center text-[var(--danger)]">{error}</p>}
           </div>
         )}
 
         {phase === 'verify' && session && currentStep && (
-          <div className="login-step" key={`verify-${currentStep}`}>
-            <div className="login-step__back">
+          <div className="login-step flex flex-col gap-5" key={`verify-${currentStep}`}>
+            <div className="login-step__back text-[8px] p-1">
               <Button type="button" variant="ghost" size="sm" onPress={goBackToAccount}>
                 <ChevronLeft /> 返回
               </Button>
             </div>
 
             {currentStep === 'password' && (
-              <Form onSubmit={submitPassword} className="login-step__inner">
+              <Form onSubmit={submitPassword} className="login-step__inner flex flex-col gap-5">
                 <TextField isRequired name="password" type="password">
                   <Label className="ml-2">密码</Label>
                   <Input
@@ -380,7 +380,7 @@ function Login() {
                   />
                   <FieldError />
                 </TextField>
-                {error && <p className="login-page__error">{error}</p>}
+                {error && <p className="login-page__error m-0 text-sm text-center text-[var(--danger)]">{error}</p>}
                 <Button
                   type="submit"
                   variant="primary"
@@ -395,8 +395,8 @@ function Login() {
             )}
 
             {currentStep === 'email' && (
-              <Form onSubmit={submitEmailCode} className="login-step__inner">
-                <div className="login-code">
+              <Form onSubmit={submitEmailCode} className="login-step__inner flex flex-col gap-5">
+                <div className="login-code flex items-end gap-2 max-[380px]:flex-wrap">
                   <TextField
                     isRequired
                     name="code"
@@ -412,7 +412,7 @@ function Login() {
                     <FieldError />
                   </TextField>
                   <span
-                    className={`login-code__send-wrap${sending ? ' is-sending' : ''}`}
+                    className={`login-code__send-wrap shrink-0 overflow-hidden${sending ? ' is-sending' : ''}`}
                     style={{ width: sending ? '9.5rem' : '7.25rem' }}
                   >
                     <Button
@@ -420,7 +420,7 @@ function Login() {
                       variant="ghost"
                       onPress={sendEmailCode}
                       isDisabled={sending}
-                      className="login-code__send"
+                      className="login-code__send w-full whitespace-nowrap"
                       fullWidth
                     >
                       <Envelope />
@@ -437,8 +437,8 @@ function Login() {
                     </Button>
                   </span>
                 </div>
-                {codeSent && <p className="login-code__hint">验证码已发送至邮箱，请查收。</p>}
-                {error && <p className="login-page__error">{error}</p>}
+                {codeSent && <p className="login-code__hint -mt-2 text-[13px] text-[var(--accent)]">验证码已发送至邮箱，请查收。</p>}
+                {error && <p className="login-page__error m-0 text-sm text-center text-[var(--danger)]">{error}</p>}
                 <Button
                   type="submit"
                   variant="primary"
@@ -459,18 +459,18 @@ function Login() {
             )}
 
             {currentStep === 'qq' && (
-              <div className="login-step__inner">
-                <p className="login-page__hint">
+              <div className="login-step__inner flex flex-col gap-5">
+                <p className="login-page__hint inline-flex items-center justify-center gap-2 m-0 text-sm text-[color-mix(in_srgb,var(--foreground)_70%,transparent)]">
                   请向 <strong>QQ 机器人</strong> 私聊发送验证码：
                 </p>
-                <p className="login-qq-code">{qqCode || '…'}</p>
-                <p className="login-page__hint">发送后请稍候，正在等待验证…</p>
-                {error && <p className="login-page__error">{error}</p>}
+                <p className="login-qq-code m-0 p-3 rounded-xl text-xl font-semibold tracking-[0.2em] text-center bg-[color-mix(in_srgb,var(--accent)_12%,transparent)] text-[var(--accent)]">{qqCode || '…'}</p>
+                <p className="login-page__hint inline-flex items-center justify-center gap-2 m-0 text-sm text-[color-mix(in_srgb,var(--foreground)_70%,transparent)]">发送后请稍候，正在等待验证…</p>
+                {error && <p className="login-page__error m-0 text-sm text-center text-[var(--danger)]">{error}</p>}
               </div>
             )}
 
             {currentStep === 'totp' && (
-              <Form onSubmit={submitTotp} className="login-step__inner">
+              <Form onSubmit={submitTotp} className="login-step__inner flex flex-col gap-5">
                 <TextField
                   isRequired
                   name="code"
@@ -485,7 +485,7 @@ function Login() {
                   />
                   <FieldError />
                 </TextField>
-                {error && <p className="login-page__error">{error}</p>}
+                {error && <p className="login-page__error m-0 text-sm text-center text-[var(--danger)]">{error}</p>}
                 <Button
                   type="submit"
                   variant="primary"
@@ -508,18 +508,18 @@ function Login() {
         )}
 
         {phase === 'finalizing' && (
-          <div className="login-step" key="finalizing">
-            <p className="login-page__hint">
+          <div className="login-step flex flex-col gap-5" key="finalizing">
+            <p className="login-page__hint inline-flex items-center justify-center gap-2 m-0 text-sm text-[color-mix(in_srgb,var(--foreground)_70%,transparent)]">
               <Spinner color="current" /> 正在登录…
             </p>
-            {error && <p className="login-page__error">{error}</p>}
+            {error && <p className="login-page__error m-0 text-sm text-center text-[var(--danger)]">{error}</p>}
           </div>
         )}
         </div>
       </div>
 
-      <p className="login-page__footer">
-        还没有账号？<Link className="login-page__link" to="/signup">注册</Link>
+      <p className="login-page__footer mt-5 text-center text-sm text-[color-mix(in_srgb,var(--foreground)_60%,transparent)]">
+        还没有账号？<Link className="login-page__link text-[var(--accent)] cursor-pointer" to="/signup">注册</Link>
       </p>
     </div>
   )

@@ -1,5 +1,7 @@
 /* ---------------------------------------------------------------------------
-   Global layout
+   App shell — the responsive sidebar/drawer and the header theme toggle are
+   stateful and target HeroUI-internal classes, so they stay in CSS. Layout of
+   the shell/header/content now lives as Tailwind classes in App.tsx.
    ------------------------------------------------------------------------- */
 html,
 body,
@@ -14,45 +16,7 @@ body,
   text-align: left;
 }
 
-/* Full-height app shell: sidebar on the left, main column on the right */
-.app-shell {
-  display: flex;
-  height: 100vh;
-  overflow: hidden;
-}
-
-.app-main {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-/* ---------------------------------------------------------------------------
-   Header
-   ------------------------------------------------------------------------- */
-.app-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 0.75rem 1rem;
-  background: color-mix(in srgb, var(--background) 92%, transparent);
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
-  position: sticky;
-  top: 0;
-  z-index: 10;
-}
-
-.app-header__left,
-.app-header__right {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
+/* Header theme toggle: target HeroUI's generated tab internals */
 .app-header__right .tabs__list {
   border-radius: 999px;
   gap: 4px;
@@ -67,20 +31,6 @@ body,
 }
 .app-header__right .tabs__indicator {
   border-radius: 50%;
-}
-
-.tabs-list {
-  width: 100px;
-}
-
-/* ---------------------------------------------------------------------------
-   Content
-   ------------------------------------------------------------------------- */
-.app-content {
-  flex: 1;
-  overflow-y: auto;
-  padding: 1.5rem 1.75rem;
-  background: color-mix(in srgb, var(--background) 92%, transparent);
 }
 
 .app-content h1 {
@@ -277,14 +227,6 @@ body,
   @keyframes sidebar-backdrop-in {
     from { opacity: 0; }
     to { opacity: 1; }
-  }
-
-  .app-header {
-    padding: 0.6rem 0.75rem;
-  }
-
-  .app-content {
-    padding: 1rem;
   }
 }
 
