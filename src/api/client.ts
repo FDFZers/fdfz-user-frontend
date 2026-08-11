@@ -1,6 +1,6 @@
 // 统一的 API 请求封装。
-// 开发环境下由 Vite 将 `/api` 代理到后端（见 vite.config.ts）。
-export const API_BASE = '/api'
+// 后端连接主目录（Apifox Mock 服务器），所有接口在此基础路径下拼接。
+export const API_BASE = 'http://127.0.0.1:4523/m1/8686325-8470616-default'
 
 export class ApiError extends Error {
   status: number
@@ -17,8 +17,10 @@ export class ApiError extends Error {
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   let res: Response
   try {
+    // FormData 无需手动设置 Content-Type（浏览器会自动带 boundary）
+    const isForm = init?.body instanceof FormData
     res = await fetch(`${API_BASE}${path}`, {
-      headers: { 'Content-Type': 'application/json' },
+      headers: isForm ? undefined : { 'Content-Type': 'application/json' },
       ...init,
     })
   } catch {
@@ -53,5 +55,7 @@ export const api = {
       method: 'POST',
       body: body === undefined ? undefined : JSON.stringify(body),
     }),
+  postForm: <T>(path: string, form: FormData) =>
+    request<T>(path, { method: 'POST', body: form }),
   delete: <T>(path: string) => request<T>(path, { method: 'DELETE' }),
 }

@@ -1,9 +1,21 @@
 import { createContext, useContext, useState, type ReactNode } from 'react'
-import type { AuthTokens } from '../api/auth'
+import type { AuthTokens, School, Sex } from '../api/auth'
 
+/** 与后端 `User` 结构对齐 */
 export interface User {
+  id: number
   username: string
-  email: string
+  student_num: string | null
+  real_name: string | null
+  school: School | null
+  sex: Sex
+  birthday: string | null
+  public_email: string | null
+  public_qq: string | null
+  bio: string
+  status: 'banned' | 'active'
+  created_at: string
+  updated_at: string
 }
 
 interface AuthContextValue {

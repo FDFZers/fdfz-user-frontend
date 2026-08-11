@@ -6,6 +6,7 @@ import {
   Form,
   Input,
   Label,
+  Spinner,
   TextField,
   Tooltip,
   Radio,
@@ -16,24 +17,54 @@ import {
   ChevronLeft,
   CircleInfo
 } from '@gravity-ui/icons'
+import AltchaChallenge from '../components/AltchaChallenge'
+import {
+  getChallenge,
+  register,
+  type AltchaChallenge as Challenge,
+} from '../api/auth'
+import { ApiError } from '../api/client'
 import './Signup.css'
 import '../base.css'
+
+function errMsg(e: unknown): string {
+  if (e instanceof ApiError) {
+    switch (e.error) {
+      case 'email_exists':
+        return '该邮箱已被绑定'
+      case 'qq_exists':
+        return '该 QQ 号已被绑定'
+      case 'student_num_exists':
+        return '该学号已被绑定'
+      case 'altcha_invalid':
+      case 'altcha_expired':
+      case 'altcha_error':
+        return '人机验证失败，请重试'
+      default:
+        return e.message
+    }
+  }
+  return '发生未知错误，请稍后重试'
+}
 
 function Signup() {
   const [step, setStep] = useState(1)
   const [account, setAccount] = useState('')
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
-  const [school, setSchool] = useState('yangpu')
+  const [school, setSchool] = useState('fdfz')
   const [studentNumber, setStudentNumber] = useState('')
   const [realName, setRealName] = useState('')
-  const [authFile, setAuthFile] = useState('')
+  const [authFile, setAuthFile] = useState<File | null>(null)
+  const [challenge, setChallenge] = useState<Challenge | null>(null)
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState('')
   const cardRef = useRef<HTMLDivElement>(null)
 
   const isStep1Valid = account.trim().length > 0
   const isStep2Valid = password.length > 0 && confirm.length > 0 && password === confirm
   const isStep3Valid = Boolean(school)
-  const isStep4Valid = studentNumber.trim().length > 0 && realName.trim().length > 0 && authFile.length > 0
+  const isStep4Valid = studentNumber.trim().length > 0 && realName.trim().length > 0 && authFile !== null
   const passwordMismatch = confirm.length > 0 && password !== confirm
 
   const goStep = (next: number) => {
@@ -52,10 +83,41 @@ function Signup() {
     setStep(next)
   }
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    if (!isStep4Valid) {
-      return
+    if (!isStep4Valid) return
+    setError('')
+    setSubmitting(true)
+    try {
+      setChallenge(await getChallenge())
+    } catch (e) {
+      setError(errMsg(e))
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  // ALTCHA 验证通过后，用 payload + 表单数据提交注册请求给管理员
+  const onAltchaVerified = async (payload: string) => {
+    if (!authFile) return
+    setSubmitting(true)
+    setError('')
+    try {
+      await register({
+        material: authFile,
+        username: account.trim(),
+        password,
+        studentNum: studentNumber.trim(),
+        realName: realName.trim(),
+        altchaPayload: payload,
+      })
+      // 注册请求已提交，等待管理员审核
+      setChallenge(null)
+    } catch (e) {
+      setError(errMsg(e))
+      setChallenge(null)
+    } finally {
+      setSubmitting(false)
     }
   }
 
@@ -91,6 +153,27 @@ function Signup() {
           <p className="m-0 text-sm text-[color-mix(in_srgb,var(--foreground)_60%,transparent)]">欢迎来到 FF Wiki！</p>
         </div>
 
+        {challenge ? (
+          <div className="signup-challenge flex flex-col gap-5">
+            <div className="signup-step__back text-[8px] p-1">
+              <Button type="button" variant="ghost" size="sm" onPress={() => setChallenge(null)}>
+                <ChevronLeft /> 返回
+              </Button>
+            </div>
+            <div className="signup-challenge__inner flex flex-col items-center gap-4 py-4">
+              <AltchaChallenge challenge={challenge} onVerified={onAltchaVerified} />
+              {submitting && (
+                <p className="inline-flex items-center gap-2 m-0 text-sm text-[color-mix(in_srgb,var(--foreground)_70%,transparent)]">
+                  <Spinner color="current" /> 正在提交注册请求…
+                </p>
+              )}
+              {error && (
+                <p className="m-0 text-sm text-center text-[var(--danger)]">{error}</p>
+              )}
+            </div>
+          </div>
+        ) : (
+          <>
         {step === 1 && (
           <div className='signup-info'>
             <Form className='signup-info-form flex flex-col gap-5'>
@@ -185,7 +268,7 @@ function Signup() {
               orientation="horizontal"
               onChange={(value) => setSchool(value)}
             >
-              <Radio value="yangpu">
+              <Radio value="fdfz">
                 <Radio.Content>
                   <Radio.Control>
                     <Radio.Indicator />
@@ -193,7 +276,7 @@ function Signup() {
                   本部
                 </Radio.Content>
               </Radio>
-              <Radio value="pudong">
+              <Radio value="ffpd">
                 <Radio.Content>
                   <Radio.Control>
                     <Radio.Indicator />
@@ -201,7 +284,7 @@ function Signup() {
                   浦东分校
                 </Radio.Content>
               </Radio>
-              <Radio value="xuhui">
+              <Radio value="ffxh">
                 <Radio.Content>
                   <Radio.Control>
                     <Radio.Indicator />
@@ -209,7 +292,7 @@ function Signup() {
                   徐汇分校
                 </Radio.Content>
               </Radio>
-              <Radio value="qingpu">
+              <Radio value="ffqp">
                 <Radio.Content>
                   <Radio.Control>
                     <Radio.Indicator />
@@ -291,8 +374,9 @@ function Signup() {
                   type="file"
                   name="authfile"
                   required
+                  accept="image/*"
                   className="signup-authfile-input flex-1 min-w-0 w-full px-3 py-2.5 rounded-xl border border-[color-mix(in_srgb,var(--foreground)_15%,transparent)] bg-[color-mix(in_srgb,var(--foreground)_4%,transparent)] text-[var(--foreground)] text-sm cursor-pointer [font:inherit]"
-                  onChange={(event) => setAuthFile(event.target.files?.[0]?.name ?? '')}
+                  onChange={(event) => setAuthFile(event.target.files?.[0] ?? null)}
                 />
                 <Tooltip delay={0}>
                   <Button
@@ -318,6 +402,8 @@ function Signup() {
             </div>
             </Form>
           </div>
+        )}
+          </>
         )}
       </div>
 

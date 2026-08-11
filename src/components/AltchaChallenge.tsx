@@ -42,18 +42,41 @@ export default function AltchaChallenge({ challenge, onVerified, onStateChange }
     }
   }, [onVerified, onStateChange])
 
-  // 注入 challenge 并自动求解
+  // 注入 challenge 并自动求解。
+  // configure/verify 在自定义元素异步升级（$$c 就绪）后才可用，故等待升级并重试，
+  // 避免 load 事件触发时 configure 尚为 undefined。
   useEffect(() => {
     const el = ref.current
     if (!el) return
-    const onLoad = () => {
-      el.configure?.({ challenge })
-        .then(() => el.verify?.())
-        .catch(() => {})
+    let cancelled = false
+    const start = async () => {
+      try {
+        await customElements.whenDefined('altcha-widget')
+      } catch {
+        return
+      }
+      const attempt = () => {
+        if (cancelled) return
+        if (typeof el.configure !== 'function') {
+          window.setTimeout(attempt, 30)
+          return
+        }
+        // 注意：configure 是同步方法（返回 undefined），不能链式 .then()；
+        // 配置后待 Svelte flush 完成再触发 verify（返回 Promise）。
+        el.configure?.({
+          challenge,
+          // 后端通过后续接口（/auth/login/init、/auth/register）校验 altcha_payload，
+          // 前端不做网络侧服务端验证，避免请求 mock 返回 text/html 导致 content-type 错误。
+          verifyUrl: '',
+          verifyFunction: async (payload: string) => ({ verified: true, payload }),
+        })
+        queueMicrotask(() => el.verify?.())
+      }
+      attempt()
     }
-    el.addEventListener('load', onLoad as EventListener)
+    void start()
     return () => {
-      el.removeEventListener('load', onLoad as EventListener)
+      cancelled = true
     }
   }, [challenge])
 

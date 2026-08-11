@@ -40,7 +40,7 @@ function Sidebar({ collapsed }: SidebarProps) {
             {user ? user.username : '访客'}
           </Label>
           <Label className="sidebar__usrinfo-email">
-            {user ? user.email : '未登录'}
+            {user ? (user.student_num || user.real_name || '已登录') : '未登录'}
           </Label>
         </div>
       </div>

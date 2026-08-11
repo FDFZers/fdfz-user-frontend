@@ -15,7 +15,6 @@ import AltchaChallenge from '../components/AltchaChallenge'
 import {
   cancelSession,
   finalizeLogin,
-  getChallenge,
   getSession,
   initLogin,
   requestEmailCode,
@@ -62,7 +61,7 @@ function Login() {
   const [password, setPassword] = useState('')
   const [emailCode, setEmailCode] = useState('')
   const [totpCode, setTotpCode] = useState('')
-  const [challenge, setChallenge] = useState<Challenge | null>(null)
+  const [challenge] = useState<Challenge | null>(null)
   const [sessionId, setSessionId] = useState<string | null>(null)
   const [session, setSession] = useState<AuthSession | null>(null)
 
@@ -105,7 +104,22 @@ function Login() {
       setError('')
       try {
         const authTokens = await finalizeLogin(sid)
-        login(authTokens, { username: account, email: account })
+        // 登录接口仅返回令牌；当前暂以占位数据保存用户信息
+        login(authTokens, {
+          id: 0,
+          username: account,
+          student_num: null,
+          real_name: null,
+          school: null,
+          sex: 'unknown',
+          birthday: null,
+          public_email: null,
+          public_qq: null,
+          bio: '',
+          status: 'active',
+          created_at: '',
+          updated_at: '',
+        })
         navigate('/')
       } catch (e) {
         finalizedRef.current = false
@@ -122,7 +136,7 @@ function Login() {
       try {
         const s = await getSession(sid)
         setSession(s)
-        if (s.status === 'success') {
+        if (s.status === 'completed') {
           await finalize(sid)
         }
       } catch (e) {
@@ -150,37 +164,42 @@ function Login() {
     }
   }, [sessionId])
 
-  // 第一步：填写邮箱，获取并展示 ALTCHA Challenge
+  // 创建登录鉴权会话（ALTCHA 通过后或临时跳过时统一调用）
+  const startLogin = useCallback(
+    async (payload: string) => {
+      if (submitting || sessionId) return
+      setSubmitting(true)
+      setError('')
+      try {
+        const { session_id } = await initLogin(payload)
+        setSessionId(session_id)
+        goPhase('verify')
+        await refreshSession(session_id)
+      } catch (e) {
+        setError(errMsg(e))
+      } finally {
+        setSubmitting(false)
+      }
+    },
+    [submitting, sessionId, goPhase, refreshSession],
+  )
+
+  // 第一步：填写邮箱。
+  // 【临时测试】跳过 ALTCHA，直接以占位 payload 创建登录会话，便于测试后续流程。
+  // 恢复 ALTCHA 后：应先 setChallenge(await getChallenge()) 进入 challenge 阶段，
+  // 由 AltchaChallenge 验证通过后回调 onAltchaVerified(payload)。
   const submitAccount = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setError('')
     const email = account.trim()
     if (!email) return
     setAccount(email)
-    goPhase('challenge')
-    try {
-      setChallenge(await getChallenge())
-    } catch (err) {
-      setError(errMsg(err))
-      goPhase('account')
-    }
+    await startLogin('skipped-altcha-payload')
   }
 
   // ALTCHA 验证通过后，用 payload 创建登录鉴权会话
-  const onAltchaVerified = async (payload: string) => {
-    if (submitting || sessionId) return
-    setSubmitting(true)
-    setError('')
-    try {
-      const { session_id } = await initLogin(payload)
-      setSessionId(session_id)
-      goPhase('verify')
-      await refreshSession(session_id)
-    } catch (e) {
-      setError(errMsg(e))
-    } finally {
-      setSubmitting(false)
-    }
+  const onAltchaVerified = (payload: string) => {
+    void startLogin(payload)
   }
 
   const submitPassword = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -341,7 +360,7 @@ function Login() {
                 <ChevronLeft /> 返回
               </Button>
             </div>
-            <div className="login-challenge flex flex-col items-center gap-4 py-4">
+            <div className="login-challenge flex flex-col items-center gap-4 py-4 className='h-[100px]'">
               {challenge ? (
                 <AltchaChallenge challenge={challenge} onVerified={onAltchaVerified} />
               ) : (
