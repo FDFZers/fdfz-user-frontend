@@ -74,29 +74,27 @@ function Login() {
   const isEmailCodeValid = CODE_RE.test(emailCode)
   const isTotpValid = CODE_RE.test(totpCode)
 
-  // 邮箱验证码步骤
+  // 邮箱验证
   const [codeSent, setCodeSent] = useState(false)
   const [sending, setSending] = useState(false)
 
-  // QQ 验证步骤
+  // QQ 验证
   const [qqCode, setQqCode] = useState('')
 
   const cardRef = useRef<HTMLDivElement>(null)
   const finalizedRef = useRef(false)
 
-  // 切换阶段：先锁定当前高度，再切换内容；随后由 useLayoutEffect 做高度过渡
   const goPhase = useCallback((next: Phase) => {
     const el = cardRef.current
     if (el) {
       el.style.height = `${el.offsetHeight}px`
-      void el.offsetHeight // 强制回流
+      void el.offsetHeight
     }
     setPhase(next)
   }, [])
 
   const currentStep: NextStep | undefined = session?.next_steps?.[0]
 
-  // 登录成功：用 session_id 换取令牌并保存
   const finalize = useCallback(
     async (sid: string) => {
       if (finalizedRef.current) return
@@ -105,7 +103,6 @@ function Login() {
       setError('')
       try {
         const authTokens = await finalizeLogin(sid)
-        // 登录接口仅返回令牌；当前暂以占位数据保存用户信息
         login(authTokens, {
           id: 0,
           username: account,
@@ -131,7 +128,6 @@ function Login() {
     [account, goPhase, login, navigate],
   )
 
-  // 刷新会话状态；鉴权成功后自动换取令牌
   const refreshSession = useCallback(
     async (sid: string) => {
       try {
@@ -147,7 +143,6 @@ function Login() {
     [finalize],
   )
 
-  // 轮询会话状态（建议 5s 一次）
   useEffect(() => {
     if (!sessionId || phase !== 'verify') return
     const id = setInterval(() => {
@@ -156,7 +151,6 @@ function Login() {
     return () => clearInterval(id)
   }, [sessionId, phase, refreshSession])
 
-  // 组件卸载/退出时取消尚未完成的鉴权会话
   useEffect(() => {
     return () => {
       if (sessionId && !finalizedRef.current) {
@@ -165,7 +159,6 @@ function Login() {
     }
   }, [sessionId])
 
-  // 创建登录鉴权会话（ALTCHA 通过后或临时跳过时统一调用）
   const startLogin = useCallback(
     async (payload: string) => {
       if (submitting || sessionId) return

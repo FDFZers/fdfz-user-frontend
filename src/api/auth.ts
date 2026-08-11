@@ -3,9 +3,7 @@ import { api, API_BASE, ApiError } from './client'
 export type AuthSessionStatus = 'active' | 'pending_email' | 'pending_qq' | 'completed'
 export type NextStep = 'password' | 'email' | 'qq' | 'totp'
 
-/** 学校：fdfz(本部) / ffpd(浦东) / ffqp(青浦) / ffxh(徐汇) */
-export type School = 'fdfz' | 'ffpd' | 'ffqp' | 'ffxh'
-/** 性别：unknown / male / female */
+export type School = 'fdfz' | 'ffpd' | 'ffqp' | 'ffxh' | 'ffja'
 export type Sex = 'unknown' | 'male' | 'female'
 
 export interface AltchaChallengeParameters {
@@ -155,6 +153,8 @@ export interface RegisterParams {
   studentNum: string
   /** 真实姓名 */
   realName: string
+  /** 所在学校 */
+  school: School
   /** ALTCHA 验证载荷 */
   altchaPayload: string
 }
@@ -170,6 +170,7 @@ export function register(params: RegisterParams): Promise<Record<string, never>>
   form.append('password', params.password)
   form.append('student_num', params.studentNum)
   form.append('real_name', params.realName)
+  form.append('school', params.school)
   form.append('altcha_payload', params.altchaPayload)
   return api.postForm<Record<string, never>>('/auth/register', form)
 }

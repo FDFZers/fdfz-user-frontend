@@ -22,6 +22,7 @@ import {
   getChallenge,
   register,
   type AltchaChallenge as Challenge,
+  type School,
 } from '../api/auth'
 import { ApiError } from '../api/client'
 import './Signup.css'
@@ -109,6 +110,7 @@ function Signup() {
         password,
         studentNum: studentNumber.trim(),
         realName: realName.trim(),
+        school: school as School,
         altchaPayload: payload,
       })
       // 注册请求已提交，等待管理员审核
@@ -176,7 +178,13 @@ function Signup() {
           <>
         {step === 1 && (
           <div className='signup-info'>
-            <Form className='signup-info-form flex flex-col gap-5'>
+            <Form
+              className='signup-info-form flex flex-col gap-5'
+              onSubmit={(e) => {
+                e.preventDefault()
+                goStep(2)
+              }}
+            >
             <div className="signup-step flex flex-col gap-5" key="1">
             <TextField isRequired name="account">
               <Label>用户名</Label>
@@ -204,7 +212,13 @@ function Signup() {
 
         {step === 2 && (
           <div className='signup-info'>
-            <Form className='signup-info-form flex flex-col gap-5'>
+            <Form
+              className='signup-info-form flex flex-col gap-5'
+              onSubmit={(e) => {
+                e.preventDefault()
+                goStep(3)
+              }}
+            >
             <div className="signup-step flex flex-col gap-5" key="3">
             <div className="signup-step__back text-[8px] p-1">
               <Button type="button" variant="ghost" size="sm" onPress={() => goStep(1)}>
@@ -259,7 +273,13 @@ function Signup() {
               </Button>
             </div>
 
-          <Form className='signup-auth-form flex flex-col gap-5'>
+          <Form
+            className='signup-auth-form flex flex-col gap-5'
+            onSubmit={(e) => {
+              e.preventDefault()
+              goStep(4)
+            }}
+          >
             <div className="signup-step flex flex-col gap-5" key="4">
             <Label>所在学校</Label>
             <RadioGroup
@@ -298,6 +318,14 @@ function Signup() {
                     <Radio.Indicator />
                   </Radio.Control>
                   青浦分校
+                </Radio.Content>
+              </Radio>
+              <Radio value="ffja">
+                <Radio.Content>
+                  <Radio.Control>
+                    <Radio.Indicator />
+                  </Radio.Control>
+                  静安分校
                 </Radio.Content>
               </Radio>
             </RadioGroup>
@@ -351,6 +379,7 @@ function Signup() {
                     <p>浦东分校 <strong>+20</strong>，如 20292101</p>
                     <p>青浦分校 <strong>+40</strong>，如 20294101</p>
                     <p>徐汇分校 <strong>+60</strong>，如 20296101</p>
+                    <p>静安分校请先用 12 班班级号</p>
                   </Tooltip.Content>
                 </Tooltip>
               </div>
