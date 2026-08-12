@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import {
+  Alert,
   Button,
   FieldError,
   Form,
@@ -35,22 +36,61 @@ type Phase = 'account' | 'challenge' | 'verify' | 'finalizing'
 
 const CODE_RE = /^\d{6}$/
 
-function errMsg(e: unknown): string {
+// 错误信息：isNetwork 标记网络错误，code 为 HTTP 状态码（网络错误为 0）
+type ErrorInfo = {
+  message: string
+  code?: number
+  isNetwork: boolean
+}
+
+function toErrorInfo(e: unknown): ErrorInfo {
   if (e instanceof ApiError) {
+    // 网络错误：fetch 抛出异常时 status 为 0
+    if (e.status === 0) {
+      return { message: '网络错误，请检查网络连接', code: e.status, isNetwork: true }
+    }
+    let message = e.message
     switch (e.error) {
       case 'auth_failed':
-        return '账号或密码错误'
+        message = '账号或密码错误'
+        break
       case 'auth_session_not_found':
-        return '鉴权会话已过期，请重新登录'
+        message = '鉴权会话已过期，请重新登录'
+        break
       case 'altcha_invalid':
       case 'altcha_expired':
       case 'altcha_error':
-        return '人机验证失败，请重试'
-      default:
-        return e.message
+        message = '人机验证失败，请重试'
+        break
     }
+    return { message, code: e.status, isNetwork: false }
   }
-  return '发生未知错误，请稍后重试'
+  return { message: '发生未知错误，请稍后重试', isNetwork: false }
+}
+
+function fieldError(message: string): ErrorInfo {
+  return { message, isNetwork: false }
+}
+
+// 网络错误用 Alert 展示并附错误代码，其余用普通文本
+function ErrorNotice({ error }: { error: ErrorInfo | null }) {
+  if (!error) return null
+  if (error.isNetwork) {
+    return (
+      <Alert status="danger">
+        <Alert.Indicator />
+        <Alert.Content>
+          <Alert.Title>网络错误</Alert.Title>
+          <Alert.Description>
+            {error.message}（错误代码：{error.code}）
+          </Alert.Description>
+        </Alert.Content>
+      </Alert>
+    )
+  }
+  return (
+    <p className="login-page__error m-0 text-sm text-center text-[var(--danger)]">{error.message}</p>
+  )
 }
 
 function Login() {
@@ -66,7 +106,7 @@ function Login() {
   const [sessionId, setSessionId] = useState<string | null>(null)
   const [session, setSession] = useState<AuthSession | null>(null)
 
-  const [error, setError] = useState('')
+  const [error, setError] = useState<ErrorInfo | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
   const isAccountValid = account.trim().length > 0
@@ -100,7 +140,7 @@ function Login() {
       if (finalizedRef.current) return
       finalizedRef.current = true
       goPhase('finalizing')
-      setError('')
+      setError(null)
       try {
         const authTokens = await finalizeLogin(sid)
         login(authTokens, {
@@ -122,7 +162,7 @@ function Login() {
       } catch (e) {
         finalizedRef.current = false
         goPhase('verify')
-        setError(errMsg(e))
+        setError(toErrorInfo(e))
       }
     },
     [account, goPhase, login, navigate],
@@ -137,7 +177,7 @@ function Login() {
           await finalize(sid)
         }
       } catch (e) {
-        setError(errMsg(e))
+        setError(toErrorInfo(e))
       }
     },
     [finalize],
@@ -163,14 +203,14 @@ function Login() {
     async (payload: string) => {
       if (submitting || sessionId) return
       setSubmitting(true)
-      setError('')
+      setError(null)
       try {
         const { session_id } = await initLogin(payload)
         setSessionId(session_id)
         goPhase('verify')
         await refreshSession(session_id)
       } catch (e) {
-        setError(errMsg(e))
+        setError(toErrorInfo(e))
       } finally {
         setSubmitting(false)
       }
@@ -181,7 +221,7 @@ function Login() {
   // 第一步：填写邮箱，获取并展示 ALTCHA Challenge
   const submitAccount = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    setError('')
+    setError(null)
     const email = account.trim()
     if (!email) return
     setAccount(email)
@@ -189,7 +229,7 @@ function Login() {
     try {
       setChallenge(await getChallenge())
     } catch (err) {
-      setError(errMsg(err))
+      setError(toErrorInfo(err))
       goPhase('account')
     }
   }
@@ -203,16 +243,16 @@ function Login() {
     e.preventDefault()
     if (!sessionId) return
     if (!isPasswordValid) {
-      setError('请输入密码')
+      setError(fieldError('请输入密码'))
       return
     }
     setSubmitting(true)
-    setError('')
+    setError(null)
     try {
       await verifyPassword(sessionId, account, password)
       await refreshSession(sessionId)
     } catch (err) {
-      setError(errMsg(err))
+      setError(toErrorInfo(err))
     } finally {
       setSubmitting(false)
     }
@@ -221,12 +261,12 @@ function Login() {
   const sendEmailCode = async () => {
     if (!sessionId) return
     setSending(true)
-    setError('')
+    setError(null)
     try {
       await requestEmailCode(sessionId, account)
       setCodeSent(true)
     } catch (err) {
-      setError(errMsg(err))
+      setError(toErrorInfo(err))
     } finally {
       setSending(false)
     }
@@ -236,16 +276,16 @@ function Login() {
     e.preventDefault()
     if (!sessionId) return
     if (!isEmailCodeValid) {
-      setError('请输入 6 位数字验证码')
+      setError(fieldError('请输入 6 位数字验证码'))
       return
     }
     setSubmitting(true)
-    setError('')
+    setError(null)
     try {
       await verifyEmailCode(emailCode)
       await refreshSession(sessionId)
     } catch (err) {
-      setError(errMsg(err))
+      setError(toErrorInfo(err))
     } finally {
       setSubmitting(false)
     }
@@ -255,16 +295,16 @@ function Login() {
     e.preventDefault()
     if (!sessionId) return
     if (!isTotpValid) {
-      setError('请输入 6 位数字验证码')
+      setError(fieldError('请输入 6 位数字验证码'))
       return
     }
     setSubmitting(true)
-    setError('')
+    setError(null)
     try {
       await verifyTotp(sessionId, totpCode)
       await refreshSession(sessionId)
     } catch (err) {
-      setError(errMsg(err))
+      setError(toErrorInfo(err))
     } finally {
       setSubmitting(false)
     }
@@ -275,7 +315,7 @@ function Login() {
     if (phase === 'verify' && currentStep === 'qq' && sessionId && !qqCode) {
       startQq(sessionId)
         .then(({ code }) => setQqCode(code))
-        .catch((err) => setError(errMsg(err)))
+        .catch((err) => setError(toErrorInfo(err)))
     }
   }, [phase, currentStep, sessionId, qqCode])
 
@@ -288,7 +328,7 @@ function Login() {
     setQqCode('')
     setCodeSent(false)
     goPhase('account')
-    setError('')
+    setError(null)
   }
 
   // 新内容渲染后：测量真实高度并过渡（逻辑与注册页一致）
@@ -371,7 +411,7 @@ function Login() {
                 </p>
               )}
             </div>
-            {error && <p className="login-page__error m-0 text-sm text-center text-[var(--danger)]">{error}</p>}
+            {error && <ErrorNotice error={error} />}
           </div>
         )}
 
@@ -396,7 +436,7 @@ function Login() {
                   />
                   <FieldError />
                 </TextField>
-                {error && <p className="login-page__error m-0 text-sm text-center text-[var(--danger)]">{error}</p>}
+                {error && <ErrorNotice error={error} />}
                 <Button
                   type="submit"
                   variant="primary"
@@ -454,7 +494,7 @@ function Login() {
                   </span>
                 </div>
                 {codeSent && <p className="login-code__hint -mt-2 text-[13px] text-[var(--accent)] animate-[fade-slide-in_0.3s_var(--ease-out)_both]">验证码已发送至邮箱，请查收。</p>}
-                {error && <p className="login-page__error m-0 text-sm text-center text-[var(--danger)]">{error}</p>}
+                {error && <ErrorNotice error={error} />}
                 <Button
                   type="submit"
                   variant="primary"
@@ -481,7 +521,7 @@ function Login() {
                 </p>
                 <p className="login-qq-code m-0 p-3 rounded-xl text-xl font-semibold tracking-[0.2em] text-center bg-[color-mix(in_srgb,var(--accent)_12%,transparent)] text-[var(--accent)]">{qqCode || '…'}</p>
                 <p className="login-page__hint inline-flex items-center justify-center gap-2 m-0 text-sm text-[color-mix(in_srgb,var(--foreground)_70%,transparent)]">发送后请稍候，正在等待验证…</p>
-                {error && <p className="login-page__error m-0 text-sm text-center text-[var(--danger)]">{error}</p>}
+                {error && <ErrorNotice error={error} />}
               </div>
             )}
 
@@ -501,7 +541,7 @@ function Login() {
                   />
                   <FieldError />
                 </TextField>
-                {error && <p className="login-page__error m-0 text-sm text-center text-[var(--danger)]">{error}</p>}
+                {error && <ErrorNotice error={error} />}
                 <Button
                   type="submit"
                   variant="primary"
@@ -528,7 +568,7 @@ function Login() {
             <p className="login-page__hint inline-flex items-center justify-center gap-2 m-0 text-sm text-[color-mix(in_srgb,var(--foreground)_70%,transparent)]">
               <Spinner color="current" /> 正在登录…
             </p>
-            {error && <p className="login-page__error m-0 text-sm text-center text-[var(--danger)]">{error}</p>}
+            {error && <ErrorNotice error={error} />}
           </div>
         )}
         </div>

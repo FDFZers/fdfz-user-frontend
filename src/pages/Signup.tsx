@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { 
+  Alert,
   Button,
   FieldError,
   Form,
@@ -15,6 +16,7 @@ import {
 import {
   ArrowRight,
   ChevronLeft,
+  Check,
   CircleInfo
 } from '@gravity-ui/icons'
 import AltchaChallenge from '../components/AltchaChallenge'
@@ -28,24 +30,41 @@ import { ApiError } from '../api/client'
 import './Signup.css'
 import '../base.css'
 
-function errMsg(e: unknown): string {
+/* 错误信息
+  *isNetwork  标记网络错误
+  *code       HTTP 状态码
+*/
+type ErrorInfo = {
+  message: string
+  code?: number
+  isNetwork: boolean
+}
+
+function toErrorInfo(e: unknown): ErrorInfo {
   if (e instanceof ApiError) {
+    if (e.status === 0) {
+      return { message: '网络错误，请检查网络连接', code: e.status, isNetwork: true }
+    }
+    let message = e.message
     switch (e.error) {
       case 'email_exists':
-        return '该邮箱已被绑定'
+        message = '该邮箱已经注册过了！'
+        break
       case 'qq_exists':
-        return '该 QQ 号已被绑定'
+        message = '该 QQ 号已经注册过了！'
+        break
       case 'student_num_exists':
-        return '该学号已被绑定'
+        message = '该学号已经注册过了！'
+        break
       case 'altcha_invalid':
       case 'altcha_expired':
       case 'altcha_error':
-        return '人机验证失败，请重试'
-      default:
-        return e.message
+        message = '人机验证失败，请重试'
+        break
     }
+    return { message, code: e.status, isNetwork: false }
   }
-  return '发生未知错误，请稍后重试'
+  return { message: '发生未知错误，请稍后重试', isNetwork: false }
 }
 
 function Signup() {
@@ -59,8 +78,10 @@ function Signup() {
   const [authFile, setAuthFile] = useState<File | null>(null)
   const [challenge, setChallenge] = useState<Challenge | null>(null)
   const [submitting, setSubmitting] = useState(false)
-  const [error, setError] = useState('')
+  const [error, setError] = useState<ErrorInfo | null>(null)
+  const [submitted, setSubmitted] = useState(false)
   const cardRef = useRef<HTMLDivElement>(null)
+  const navigate = useNavigate()
 
   const isStep1Valid = account.trim().length > 0
   const isStep2Valid = password.length > 0 && confirm.length > 0 && password === confirm
@@ -87,12 +108,12 @@ function Signup() {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     if (!isStep4Valid) return
-    setError('')
+    setError(null)
     setSubmitting(true)
     try {
       setChallenge(await getChallenge())
     } catch (e) {
-      setError(errMsg(e))
+      setError(toErrorInfo(e))
     } finally {
       setSubmitting(false)
     }
@@ -102,7 +123,7 @@ function Signup() {
   const onAltchaVerified = async (payload: string) => {
     if (!authFile) return
     setSubmitting(true)
-    setError('')
+    setError(null)
     try {
       await register({
         material: authFile,
@@ -115,8 +136,9 @@ function Signup() {
       })
       // 注册请求已提交，等待管理员审核
       setChallenge(null)
+      setSubmitted(true)
     } catch (e) {
-      setError(errMsg(e))
+      setError(toErrorInfo(e))
       setChallenge(null)
     } finally {
       setSubmitting(false)
@@ -155,7 +177,44 @@ function Signup() {
           <p className="m-0 text-sm text-[color-mix(in_srgb,var(--foreground)_60%,transparent)]">欢迎来到 FF Wiki！</p>
         </div>
 
-        {challenge ? (
+        {error && (
+          <div className="signup-error mb-5">
+            {error.isNetwork ? (
+              <Alert status="danger">
+                <Alert.Indicator />
+                <Alert.Content>
+                  <Alert.Title>网络错误</Alert.Title>
+                  <Alert.Description>
+                    {error.message}（错误代码：{error.code}）
+                  </Alert.Description>
+                </Alert.Content>
+              </Alert>
+            ) : (
+              <p className="m-0 text-sm text-center text-[var(--danger)]">{error.message}</p>
+            )}
+          </div>
+        )}
+
+        {submitted ? (
+          <div className="signup-success flex flex-col items-center gap-5 py-6 text-center">
+            <div className="signup-success__icon flex h-16 w-16 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--accent)_15%,transparent)] text-[var(--accent)]">
+              <Check />
+            </div>
+            <p className="signup-success__notice m-0 text-sm text-[color-mix(in_srgb,var(--foreground)_70%,transparent)]">
+              您的注册请求已经发送，我们正在审核。请留意用户群内机器人的通知。
+            </p>
+            <Button
+              type="button"
+              size="lg"
+              fullWidth
+              onPress={() => {
+                navigate('../')
+              }}
+            >
+              回到主页
+            </Button>
+          </div>
+        ) : challenge ? (
           <div className="signup-challenge flex flex-col gap-5">
             <div className="signup-step__back text-[8px] p-1">
               <Button type="button" variant="ghost" size="sm" onPress={() => setChallenge(null)}>
@@ -168,9 +227,6 @@ function Signup() {
                 <p className="inline-flex items-center gap-2 m-0 text-sm text-[color-mix(in_srgb,var(--foreground)_70%,transparent)]">
                   <Spinner color="current" /> 正在提交注册请求…
                 </p>
-              )}
-              {error && (
-                <p className="m-0 text-sm text-center text-[var(--danger)]">{error}</p>
               )}
             </div>
           </div>

@@ -2,8 +2,9 @@ import { AlertDialog, Avatar, Button, Label, ListBox, Surface } from '@heroui/re
 import {
   ArrowRightFromSquare,
   ArrowRightToSquare,
-  House,
-  PencilToSquare
+  HouseFill,
+  PencilToSquare,
+  PersonFill
 } from '@gravity-ui/icons'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
@@ -13,12 +14,23 @@ interface SidebarProps {
 }
 
 const navItems = [
-  { icon: House, label: '主页' },
+  { icon: HouseFill, label: '主页', path: '/' },
+  { icon: PersonFill, label: '我', path: '/me' }
 ]
 
 function Sidebar({ collapsed }: SidebarProps) {
   const navigate = useNavigate()
-  const { user, logout } = useAuth()
+  const { user, logout, login } = useAuth()
+
+  // 测试账号
+  const handleMockLogin = async () => {
+    try {
+      const mod = await import('../mock/mockAccount.local')
+      login(mod.buildMockTokens(), mod.buildMockUser())
+    } catch {
+      console.warn('未找到模拟账号')
+    }
+  }
 
   return (
     <Surface
@@ -49,14 +61,17 @@ function Sidebar({ collapsed }: SidebarProps) {
         aria-label="导航"
         selectionMode="none"
         className="sidebar__nav"
-        onAction={(key) => console.log('navigate', key)}
+        onAction={(key) => {
+          const item = navItems.find((i) => i.label === key)
+          if (item) navigate(item.path)
+        }}
       >
         {navItems.map(({ icon: Icon, label }) => (
           <ListBox.Item
             key={label}
             id={label}
             textValue={label}
-            className="sidebar__item"
+            className="sidebar__item mb-2"
           >
             <span className="sidebar__icon">
               <Icon />
@@ -108,6 +123,17 @@ function Sidebar({ collapsed }: SidebarProps) {
           </AlertDialog>
         ) : (
           <>
+            {import.meta.env.DEV && (
+              <Button
+                variant="tertiary"
+                size="md"
+                fullWidth
+                onPress={handleMockLogin}
+                className="mb-2"
+              >
+                模拟登录
+              </Button>
+            )}
             <Button
               variant="ghost"
               size="md"

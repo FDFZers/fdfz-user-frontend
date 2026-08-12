@@ -65,8 +65,7 @@ export default function AltchaChallenge({ challenge, onVerified, onStateChange }
         // 配置后待 Svelte flush 完成再触发 verify（返回 Promise）。
         el.configure?.({
           challenge,
-          // 后端通过后续接口（/auth/login/init、/auth/register）校验 altcha_payload，
-          // 前端不做网络侧服务端验证，避免请求 mock 返回 text/html 导致 content-type 错误。
+          // 后端通过后续接口（/auth/login/init、/auth/register）校验 altcha_payload
           verifyUrl: '',
           verifyFunction: async (payload: string) => ({ verified: true, payload }),
         })

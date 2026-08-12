@@ -5,6 +5,7 @@ import './index.css'
 import App from './App.tsx'
 import Home from './pages/Home.tsx'
 import Login from './pages/Login.tsx'
+import Me from './pages/Me.tsx'
 import Signup from './pages/Signup.tsx'
 import { AuthProvider } from './auth/AuthContext'
 
@@ -15,6 +16,7 @@ createRoot(document.getElementById('root')!).render(
         <Routes>
           <Route element={<App />}>
             <Route path="/" element={<Home />} />
+            <Route path="/me" element={<Me />} />
           </Route>
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
