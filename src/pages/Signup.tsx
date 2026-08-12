@@ -40,6 +40,61 @@ type ErrorInfo = {
   isNetwork: boolean
 }
 
+/* 字符串校验（正则与后端一致） */
+const USERNAME_RE = /^.{1,32}$/
+const PASSWORD_RE = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,64}$/
+const REALNAME_RE = /^[\u4e00-\u9fff\u00b7]{1,4}$/
+const STUDENT_NUM_RE = /^\d{8}$/
+
+// 佐证材料：仅 JPG/PNG/HEIC，且 < 2MB（与后端一致）
+const MATERIAL_ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/heic']
+const MATERIAL_MAX_BYTES = 2 * 1024 * 1024
+
+function validateUsername(value: string): boolean {
+  return USERNAME_RE.test(value)
+}
+
+function validatePassword(value: string): boolean {
+  return PASSWORD_RE.test(value)
+}
+
+function validateRealName(value: string): boolean {
+  return REALNAME_RE.test(value)
+}
+
+function validateStudentNum(value: string): boolean {
+  return STUDENT_NUM_RE.test(value)
+}
+
+// 返回「不匹配时」的用户提示；匹配或为空返回 null（调用方控制是否展示）
+function getUsernameError(value: string): string | null {
+  if (value.trim() && !USERNAME_RE.test(value)) return '用户名长度需在 1-32 个字符之间'
+  return null
+}
+
+function getPasswordError(value: string): string | null {
+  if (value && !PASSWORD_RE.test(value))
+    return '密码需为 8-64 位，且同时包含大小写字母和数字'
+  return null
+}
+
+function getRealNameError(value: string): string | null {
+  if (value.trim() && !REALNAME_RE.test(value)) return '真实姓名需为 1-4 个中文字符'
+  return null
+}
+
+function getStudentNumError(value: string): string | null {
+  if (value.trim() && !STUDENT_NUM_RE.test(value)) return '学号需为 8 位数字'
+  return null
+}
+
+function getMaterialError(file: File | null): string | null {
+  if (!file) return null
+  if (!MATERIAL_ALLOWED_TYPES.includes(file.type)) return '仅支持 JPG / PNG / HEIC 格式的图片'
+  if (file.size > MATERIAL_MAX_BYTES) return '图片大小需小于 2MB'
+  return null
+}
+
 function toErrorInfo(e: unknown): ErrorInfo {
   if (e instanceof ApiError) {
     if (e.status === 0) {
@@ -83,11 +138,22 @@ function Signup() {
   const cardRef = useRef<HTMLDivElement>(null)
   const navigate = useNavigate()
 
-  const isStep1Valid = account.trim().length > 0
-  const isStep2Valid = password.length > 0 && confirm.length > 0 && password === confirm
+  const isStep1Valid = validateUsername(account)
+  const isStep2Valid = validatePassword(password) && confirm.length > 0 && password === confirm
   const isStep3Valid = Boolean(school)
-  const isStep4Valid = studentNumber.trim().length > 0 && realName.trim().length > 0 && authFile !== null
+  const isStep4Valid =
+    validateStudentNum(studentNumber) &&
+    validateRealName(realName) &&
+    authFile !== null &&
+    getMaterialError(authFile) === null
   const passwordMismatch = confirm.length > 0 && password !== confirm
+
+  // 仅在用户已输入内容后展示格式错误提示，避免空表单打扰
+  const usernameError = account.length > 0 ? getUsernameError(account) : null
+  const passwordError = password.length > 0 ? getPasswordError(password) : null
+  const studentNumError = studentNumber.length > 0 ? getStudentNumError(studentNumber) : null
+  const realNameError = realName.length > 0 ? getRealNameError(realName) : null
+  const materialError = authFile ? getMaterialError(authFile) : null
 
   const goStep = (next: number) => {
     if (next > step) {
@@ -197,7 +263,7 @@ function Signup() {
 
         {submitted ? (
           <div className="signup-success flex flex-col items-center gap-5 py-6 text-center">
-            <div className="signup-success__icon flex h-16 w-16 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--accent)_15%,transparent)] text-[var(--accent)]">
+            <div className="signup-success__icon flex h-8 w-8 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--accent)_15%,transparent)] text-[var(--accent)]">
               <Check />
             </div>
             <p className="signup-success__notice m-0 text-sm text-[color-mix(in_srgb,var(--foreground)_70%,transparent)]">
@@ -251,6 +317,9 @@ function Signup() {
               />
               <FieldError />
             </TextField>
+            {usernameError && (
+              <p className="signup-field-error -mt-3 text-[13px] text-[var(--danger)]">{usernameError}</p>
+            )}
 
             <Button
               type="button"
@@ -292,6 +361,9 @@ function Signup() {
               />
               <FieldError />
             </TextField>
+            {passwordError && (
+              <p className="signup-field-error -mt-3 text-[13px] text-[var(--danger)]">{passwordError}</p>
+            )}
 
             <TextField isRequired name="password-verf" type="password">
               <Label>确认您的密码</Label>
@@ -441,6 +513,9 @@ function Signup() {
               </div>
               <FieldError />
             </TextField>
+            {studentNumError && (
+              <p className="signup-field-error -mt-3 text-[13px] text-[var(--danger)]">{studentNumError}</p>
+            )}
 
             <TextField isRequired name="realname">
               <Label>真实姓名</Label>
@@ -451,6 +526,9 @@ function Signup() {
               />
               <FieldError />
             </TextField>
+            {realNameError && (
+              <p className="signup-field-error -mt-3 text-[13px] text-[var(--danger)]">{realNameError}</p>
+            )}
 
             <div className="signup-authfile-field flex flex-col gap-2">
               <Label>上传凭据以证明您的身份</Label>
@@ -459,7 +537,7 @@ function Signup() {
                   type="file"
                   name="authfile"
                   required
-                  accept="image/*"
+                  accept="image/jpeg,image/png,image/heic"
                   className="signup-authfile-input flex-1 min-w-0 w-full px-3 py-2.5 rounded-xl border border-[color-mix(in_srgb,var(--foreground)_15%,transparent)] bg-[color-mix(in_srgb,var(--foreground)_4%,transparent)] text-[var(--foreground)] text-sm cursor-pointer [font:inherit]"
                   onChange={(event) => setAuthFile(event.target.files?.[0] ?? null)}
                 />
@@ -475,10 +553,13 @@ function Signup() {
                   </Button>
                   <Tooltip.Content showArrow className="signup-authfile-tooltip max-w-64">
                     <Tooltip.Arrow />
-                    <p>例如校园卡、云校截图等</p>
+                    <p>例如校园卡、云校截图等（JPG / PNG / HEIC，小于 2MB）</p>
                   </Tooltip.Content>
                 </Tooltip>
               </div>
+              {materialError && (
+                <p className="signup-field-error text-[13px] text-[var(--danger)]">{materialError}</p>
+              )}
             </div>
 
             <Button type="submit" size="lg" fullWidth isDisabled={!isStep4Valid}>
