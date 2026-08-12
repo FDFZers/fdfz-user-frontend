@@ -317,8 +317,8 @@ function Login() {
   }, [phase, currentStep])
 
   return (
-    <div className="login-page flex min-h-screen w-full max-w-[460px] flex-col justify-center px-6 py-10 mx-auto max-[380px]:px-4 max-[380px]:py-4">
-      <div className="login-page__card overflow-hidden p-7" ref={cardRef}>
+    <div className="login-page flex min-h-screen w-full max-w-[460px] flex-col justify-center px-6 py-10 mx-auto max-[380px]:px-4 max-[380px]:py-4 animate-[login-page-in_0.45s_var(--ease-out)_both]">
+      <div className="login-page__card overflow-hidden p-7 rounded-[32px] transition-[height_0.3s_var(--ease-out)]" ref={cardRef}>
         <div className="login-page__header mb-6">
           <h1 className="m-0 mb-1 text-2xl font-semibold text-[var(--foreground)]">登录</h1>
           <p className="m-0 text-sm text-[color-mix(in_srgb,var(--foreground)_60%,transparent)]">欢迎回来，请输入账号信息</p>
@@ -428,7 +428,7 @@ function Login() {
                     <FieldError />
                   </TextField>
                   <span
-                    className={`login-code__send-wrap shrink-0 overflow-hidden${sending ? ' is-sending' : ''}`}
+                    className={`login-code__send-wrap shrink-0 overflow-hidden transition-[width_0.3s_var(--ease-out)]${sending ? ' is-sending' : ''}`}
                     style={{ width: sending ? '9.5rem' : '7.25rem' }}
                   >
                     <Button
@@ -453,7 +453,7 @@ function Login() {
                     </Button>
                   </span>
                 </div>
-                {codeSent && <p className="login-code__hint -mt-2 text-[13px] text-[var(--accent)]">验证码已发送至邮箱，请查收。</p>}
+                {codeSent && <p className="login-code__hint -mt-2 text-[13px] text-[var(--accent)] animate-[fade-slide-in_0.3s_var(--ease-out)_both]">验证码已发送至邮箱，请查收。</p>}
                 {error && <p className="login-page__error m-0 text-sm text-center text-[var(--danger)]">{error}</p>}
                 <Button
                   type="submit"

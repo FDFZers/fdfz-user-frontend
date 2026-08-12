@@ -148,8 +148,8 @@ function Signup() {
   }, [step])
 
   return (
-    <div className="signup-page flex min-h-screen w-full max-w-[460px] flex-col justify-center px-6 pt-12 pb-16 mx-auto max-[380px]:px-4 max-[380px]:py-4">
-      <div className="signup-page__card overflow-hidden p-7" ref={cardRef}>
+    <div className="signup-page flex min-h-screen w-full max-w-[460px] flex-col justify-center px-6 pt-12 pb-16 mx-auto max-[380px]:px-4 max-[380px]:py-4 animate-[signup-page-in_0.45s_var(--ease-out)_both]">
+      <div className="signup-page__card overflow-hidden p-7 rounded-[32px] transition-[height_0.3s_var(--ease-out)]" ref={cardRef}>
         <div className="signup-page__header mb-6">
           <h1 className="m-0 mb-1 text-2xl font-semibold text-[var(--foreground)]">注册</h1>
           <p className="m-0 text-sm text-[color-mix(in_srgb,var(--foreground)_60%,transparent)]">欢迎来到 FF Wiki！</p>

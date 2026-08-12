@@ -1,15 +1,6 @@
-.login-page {
-  animation: login-page-in 0.45s var(--ease-out) both;
-}
-
 @keyframes login-page-in {
   from { opacity: 0; transform: translateY(12px); }
   to { opacity: 1; transform: translateY(0); }
-}
-
-.login-page__card {
-  border-radius: 32px;
-  transition: height 0.3s var(--ease-out);
 }
 
 .login-step {
@@ -19,17 +10,6 @@
 @keyframes login-step-in {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
-}
-
-.login-code__send-wrap {
-  transition: width 0.3s var(--ease-out);
-}
-
-.login-code__hint {
-  animation: fade-slide-in 0.3s var(--ease-out) both;
-}
-.login-code__hint strong {
-  letter-spacing: 0.1em;
 }
 
 .login-page__error {
