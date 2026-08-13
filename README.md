@@ -9,11 +9,11 @@
 
 ## 启动项目
 ### 脚本启动
-下载脚本并双击运行（默认git clone到c盘根目录）[点我下载脚本](blob:https://github.com/8f6f2bef-6999-4945-ba47-f65049e6be49)
+下载脚本并双击运行（默认git clone到c盘根目录）[点我下载脚本](https://github.com/8f6f2bef-6999-4945-ba47-f65049e6be49)
 
 或者在bash中执行：
 ```bash
-powershell -Command "(New-Object Net.WebClient).DownloadFile('blob:https://github.com/8f6f2bef-6999-4945-ba47-f65049e6be49', '%TEMP%\auto-deploy.cmd'); Start-Process '%TEMP%\auto-deploy.cmd'"
+powershell -Command "(New-Object Net.WebClient).DownloadFile('https://github.com/8f6f2bef-6999-4945-ba47-f65049e6be49', '%TEMP%\auto-deploy.cmd'); Start-Process '%TEMP%\auto-deploy.cmd'"
 ```
 ### powershell或者command bash启动
 安装pnpm依赖库
