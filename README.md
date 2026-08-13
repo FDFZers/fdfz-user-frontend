@@ -8,14 +8,6 @@
 - pnpm（11.x 及以上）
 
 ## 启动项目
-### 脚本启动
-下载脚本并双击运行（默认git clone到c盘根目录）[点我下载脚本](https://raw.githubusercontent.com/FDFZers/fdfz-user-frontend/main/auto-deploy.cmd)
-
-或者在bash中执行：
-```bash
-powershell -Command "(New-Object Net.WebClient).DownloadFile('https://raw.githubusercontent.com/FDFZers/fdfz-user-frontend/main/auto-deploy.cmd', '%TEMP%\auto-deploy.cmd'); Start-Process '%TEMP%\auto-deploy.cmd'"
-```
-### powershell或者command bash启动
 安装pnpm依赖库
 ```bash
 pnpm install
