@@ -11,6 +11,7 @@ import { useAuth } from '../auth/AuthContext'
 
 interface SidebarProps {
   collapsed: boolean
+  mobile: boolean
 }
 
 const navItems = [
@@ -18,16 +19,28 @@ const navItems = [
   { icon: PersonFill, label: '我', path: '/me' }
 ]
 
-function Sidebar({ collapsed }: SidebarProps) {
+function Sidebar({ collapsed, mobile }: SidebarProps) {
   const navigate = useNavigate()
   const { user, logout } = useAuth()
 
   return (
     <Surface
       variant="transparent"
-      className={`sidebar${collapsed ? ' sidebar--collapsed' : ''}`}
+      className={[
+        'flex flex-col overflow-hidden border-r border-[color-mix(in_srgb,var(--foreground)_10%,transparent)] bg-[color-mix(in_srgb,var(--background)_92%,transparent)] p-0 transition-[width,border-color,transform] duration-250 ease-smooth',
+        mobile
+          ? 'fixed left-0 top-0 bottom-0 z-30 w-[var(--sidebar-width,240px)] shadow-[12px_0_40px_-18px_rgba(0,0,0,0.4)]'
+          : 'w-[var(--sidebar-width,240px)] shrink-0',
+        collapsed
+          ? mobile
+            ? 'translate-x-[-100%]'
+            : 'w-0 border-r-0'
+          : mobile
+            ? 'translate-x-0'
+            : ''
+      ].join(' ')}
     >
-      <div className="sidebar__usrinfo" aria-label="用户信息">
+      <div className="flex shrink-0 items-center gap-3 p-5" aria-label="用户信息">
         <Avatar>
           <Avatar.Image
             alt="Blank Avatar"
@@ -37,11 +50,11 @@ function Sidebar({ collapsed }: SidebarProps) {
             <span className="avatar__fallback-text">客</span>
           </Avatar.Fallback>
         </Avatar>
-        <div className="sidebar__usrinfo-text">
-          <Label className="sidebar__usrinfo-name">
+        <div className="flex min-w-0 flex-col overflow-hidden">
+          <Label className="overflow-hidden text-ellipsis whitespace-nowrap text-[0.925rem] font-medium text-[var(--foreground)]">
             {user ? user.username : '访客'}
           </Label>
-          <Label className="sidebar__usrinfo-email">
+          <Label className="overflow-hidden text-ellipsis whitespace-nowrap text-[0.75rem] font-normal text-[#555]">
             {user ? (user.student_num || user.real_name || '已登录') : '未登录'}
           </Label>
         </div>
@@ -50,7 +63,10 @@ function Sidebar({ collapsed }: SidebarProps) {
       <ListBox
         aria-label="导航"
         selectionMode="none"
-        className="sidebar__nav"
+        className={[
+          'm-0 flex-1 overflow-y-auto overflow-x-hidden p-3',
+          collapsed ? 'min-w-0' : 'min-w-[var(--sidebar-width,240px)]'
+        ].join(' ')}
         onAction={(key) => {
           const item = navItems.find((i) => i.label === key)
           if (item) navigate(item.path)
@@ -61,17 +77,20 @@ function Sidebar({ collapsed }: SidebarProps) {
             key={label}
             id={label}
             textValue={label}
-            className="sidebar__item mb-2"
+            className={[
+              'mb-2 flex w-full items-center gap-3 rounded-[var(--radius-md,0.75rem)] bg-transparent px-3 py-2 text-left text-[0.925rem] text-[var(--foreground)] whitespace-nowrap transition-colors duration-150 ease-out hover:bg-[color-mix(in_srgb,var(--foreground)_8%,transparent)] data-[pressed=true]:bg-[color-mix(in_srgb,var(--foreground)_12%,transparent)]',
+              collapsed ? 'justify-center px-2' : ''
+            ].join(' ')}
           >
-            <span className="sidebar__icon">
-              <Icon />
+            <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center">
+              <Icon className="h-[1.15rem] w-[1.15rem]" />
             </span>
-            <Label className="sidebar__label">{label}</Label>
+            {!collapsed && <Label>{label}</Label>}
           </ListBox.Item>
         ))}
       </ListBox>
 
-      <div className="sidebar__usrctrl" aria-label="用户控制">
+      <div className="shrink-0 p-4" aria-label="用户控制">
         {user ? (
           <AlertDialog>
             <Button

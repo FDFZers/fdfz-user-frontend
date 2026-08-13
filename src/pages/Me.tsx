@@ -9,7 +9,7 @@ const SEX_LABEL: Record<Sex, string> = {
 }
 
 const SCHOOL_LABEL: Record<School, string> = {
-  fdfz: '复旦附中',
+  fdfz: '本校',
   ffpd: '浦东分校',
   ffqp: '青浦分校',
   ffxh: '徐汇分校',
@@ -17,18 +17,25 @@ const SCHOOL_LABEL: Record<School, string> = {
 }
 
 function Me() {
-  const { user } = useAuth()
+  let { user } = useAuth()
 
   if (!user) {
-    return (
-      <div className="mx-auto flex max-w-[720px] flex-col gap-4">
-        <Card>
-          <Card.Content className="flex justify-center px-8 py-8 text-[color-mix(in_srgb,var(--foreground)_60%,transparent)]">
-            <p>尚未登录，无法查看个人主页。</p>
-          </Card.Content>
-        </Card>
-      </div>
-    )
+    // 模拟用户
+    user = {
+      id: 0,
+      username: 'example_user',
+      student_num: '00000000',
+      real_name: '示例用户',
+      school: 'fdfz' as School,
+      sex: 'unknown' as Sex,
+      birthday: '2000-01-01',
+      public_email: 'demo@example.com',
+      public_qq: '123456789',
+      status: 'active',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      bio: '这是一个模拟用户。',
+    }
   }
 
   const details: { label: string; value: string | null }[] = [
@@ -37,62 +44,22 @@ function Me() {
     { label: '学校', value: user.school ? SCHOOL_LABEL[user.school] : null },
     { label: '性别', value: SEX_LABEL[user.sex] },
     { label: '生日', value: user.birthday },
-    { label: '公开邮箱', value: user.public_email },
-    { label: '公开 QQ', value: user.public_qq },
+    { label: '邮箱', value: user.public_email },
+    { label: 'QQ', value: user.public_qq },
   ]
 
   return (
     <div className="mx-auto flex max-w-[720px] flex-col gap-4">
-      <Card>
-        <Card.Content className="flex items-center gap-4">
-          <Avatar size="lg" className="shrink-0">
-            <Avatar.Image
-              alt="用户头像"
-              src="https://heroui-assets.nyc3.cdn.digitaloceanspaces.com/avatars/blue.jpg"
-            />
-            <Avatar.Fallback>
-              <span className="text-lg font-semibold">{user.username[0]}</span>
-            </Avatar.Fallback>
-          </Avatar>
-
-          <div className="min-w-0">
-            <div className="flex items-center gap-2">
-              <Label className="text-xl font-bold">{user.username}</Label>
-              <Chip size="sm" variant="soft">
-                {user.status === 'active' ? '正常' : '已封禁'}
-              </Chip>
-            </div>
-            <Label className="text-[color-mix(in_srgb,var(--foreground)_60%,transparent)]">
-              {user.real_name || user.username} · 注册于{' '}
-              {new Date(user.created_at).toLocaleDateString()}
-            </Label>
-          </div>
-        </Card.Content>
-      </Card>
-
-      <Card>
-        <Card.Header>个人简介</Card.Header>
-        <Card.Content>
-          <p className="m-0 leading-relaxed">{user.bio || '这个人很懒，什么都没写。'}</p>
-        </Card.Content>
-      </Card>
-
-      <Card>
-        <Card.Header>资料信息</Card.Header>
-        <Card.Content>
-          <dl className="m-0 grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-x-6 gap-y-3">
-            {details.map(
-              (item) =>
-                item.value && (
-                  <div key={item.label}>
-                    <dt className="text-xs text-[color-mix(in_srgb,var(--foreground)_60%,transparent)]">{item.label}</dt>
-                    <dd className="m-0 mt-0.5 font-semibold break-all">{item.value}</dd>
-                  </div>
-                ),
-            )}
-          </dl>
-        </Card.Content>
-      </Card>
+      <Avatar>
+        <Avatar.Image
+          alt="Blank Avatar"
+          src="https://heroui-assets.nyc3.cdn.digitaloceanspaces.com/avatars/blue.jpg"
+        />
+        <Avatar.Fallback>
+          <span className="avatar__fallback-text">{user.username[0]}</span>
+        </Avatar.Fallback>
+      </Avatar>
+      <Label className="text-2xl font-bold">{user.username}</Label>
     </div>
   )
 }

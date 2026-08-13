@@ -69,10 +69,14 @@ function App() {
   }
 
   return (
-    <div className="app-shell flex h-screen overflow-hidden">
-      <Sidebar collapsed={collapsed} />
+    <div className="app-shell relative flex h-screen overflow-hidden">
+      <Sidebar collapsed={collapsed} mobile={isMobile} />
       {isMobile && !collapsed && (
-        <div className="sidebar-backdrop" onClick={toggleSidebar} aria-hidden="true" />
+        <div
+          className="fixed inset-0 z-20 bg-black/35 animate-[sidebar-backdrop-in_250ms_var(--ease-out)_both]"
+          onClick={toggleSidebar}
+          aria-hidden="true"
+        />
       )}
 
       <div className="app-main flex flex-1 min-w-0 flex-col overflow-hidden">
@@ -107,7 +111,7 @@ function App() {
           </div>
         </header>
 
-        <main className="app-content flex-1 overflow-y-auto px-7 py-6 bg-[color-mix(in_srgb,var(--background)_92%,transparent)] max-[767px]:px-4 max-[767px]:py-4">
+        <main className="app-content flex-1 overflow-y-auto px-4 py-5 bg-[color-mix(in_srgb,var(--background)_92%,transparent)] max-[767px]:px-3 max-[767px]:py-4">
           <Outlet />
         </main>
       </div>

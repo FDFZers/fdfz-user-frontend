@@ -79,5 +79,16 @@ export default function AltchaChallenge({ challenge, onVerified, onStateChange }
     }
   }, [challenge])
 
-  return <altcha-widget ref={ref as never} />
+  return (
+    <altcha-widget
+      ref={ref as never}
+      style={{
+        display: 'block',
+        width: '100%',
+        maxWidth: '164px',
+        minHeight: '120px',
+        height: '120px',
+      }}
+    />
+  )
 }

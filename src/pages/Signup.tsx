@@ -40,13 +40,13 @@ type ErrorInfo = {
   isNetwork: boolean
 }
 
-/* 字符串校验（正则与后端一致） */
+/* 字符串校验 */
 const USERNAME_RE = /^.{1,32}$/
 const PASSWORD_RE = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,64}$/
 const REALNAME_RE = /^[\u4e00-\u9fff\u00b7]{1,4}$/
 const STUDENT_NUM_RE = /^\d{8}$/
 
-// 佐证材料：仅 JPG/PNG/HEIC，且 < 2MB（与后端一致）
+// 佐证材料：JPG/PNG/HEIC 且 < 2MB
 const MATERIAL_ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/heic']
 const MATERIAL_MAX_BYTES = 2 * 1024 * 1024
 
@@ -148,7 +148,6 @@ function Signup() {
     getMaterialError(authFile) === null
   const passwordMismatch = confirm.length > 0 && password !== confirm
 
-  // 仅在用户已输入内容后展示格式错误提示，避免空表单打扰
   const usernameError = account.length > 0 ? getUsernameError(account) : null
   const passwordError = password.length > 0 ? getPasswordError(password) : null
   const studentNumError = studentNumber.length > 0 ? getStudentNumError(studentNumber) : null
@@ -236,347 +235,356 @@ function Signup() {
   }, [step])
 
   return (
-    <div className="signup-page flex min-h-screen w-full max-w-[460px] flex-col justify-center px-6 pt-12 pb-16 mx-auto max-[380px]:px-4 max-[380px]:py-4 animate-[signup-page-in_0.45s_var(--ease-out)_both]">
-      <div className="signup-page__card overflow-hidden p-7 rounded-[32px] transition-[height_0.3s_var(--ease-out)]" ref={cardRef}>
-        <div className="signup-page__header mb-6">
-          <h1 className="m-0 mb-1 text-2xl font-semibold text-[var(--foreground)]">注册</h1>
-          <p className="m-0 text-sm text-[color-mix(in_srgb,var(--foreground)_60%,transparent)]">欢迎来到 FF Wiki！</p>
-        </div>
-
-        {error && (
-          <div className="signup-error mb-5">
-            {error.isNetwork ? (
-              <Alert status="danger">
-                <Alert.Indicator />
-                <Alert.Content>
-                  <Alert.Title>网络错误</Alert.Title>
-                  <Alert.Description>
-                    {error.message}（错误代码：{error.code}）
-                  </Alert.Description>
-                </Alert.Content>
-              </Alert>
-            ) : (
-              <p className="m-0 text-sm text-center text-[var(--danger)]">{error.message}</p>
-            )}
+    <>
+      <Button
+        variant="tertiary"
+        className="signup-page__back absolute top-4 left-4 max-[380px]:top-2 max-[380px]:left-2"
+        onPress={() => navigate('../')}
+      >
+        <ChevronLeft /> 返回主页
+      </Button>
+      <div className="signup-page flex min-h-screen w-full max-w-[460px] flex-col justify-center px-6 pt-12 pb-16 mx-auto max-[380px]:px-4 max-[380px]:py-4 animate-[signup-page-in_0.45s_var(--ease-out)_both]">
+        <div className="signup-page__card overflow-hidden p-7 rounded-[32px] transition-[height_0.3s_var(--ease-out)]" ref={cardRef}>
+          <div className="signup-page__header mb-6">
+            <h1 className="m-0 mb-1 text-2xl font-semibold text-[var(--foreground)]">注册</h1>
+            <p className="m-0 text-sm text-[color-mix(in_srgb,var(--foreground)_60%,transparent)]">欢迎来到 FF Wiki！</p>
           </div>
-        )}
 
-        {submitted ? (
-          <div className="signup-success flex flex-col items-center gap-5 py-6 text-center">
-            <div className="signup-success__icon flex h-8 w-8 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--accent)_15%,transparent)] text-[var(--accent)]">
-              <Check />
-            </div>
-            <p className="signup-success__notice m-0 text-sm text-[color-mix(in_srgb,var(--foreground)_70%,transparent)]">
-              您的注册请求已经发送，我们正在审核。请留意用户群内机器人的通知。
-            </p>
-            <Button
-              type="button"
-              size="lg"
-              fullWidth
-              onPress={() => {
-                navigate('../')
-              }}
-            >
-              回到主页
-            </Button>
-          </div>
-        ) : challenge ? (
-          <div className="signup-challenge flex flex-col gap-5">
-            <div className="signup-step__back text-[8px] p-1">
-              <Button type="button" variant="ghost" size="sm" onPress={() => setChallenge(null)}>
-                <ChevronLeft /> 返回
-              </Button>
-            </div>
-            <div className="signup-challenge__inner flex flex-col items-center gap-4 py-4">
-              <AltchaChallenge challenge={challenge} onVerified={onAltchaVerified} />
-              {submitting && (
-                <p className="inline-flex items-center gap-2 m-0 text-sm text-[color-mix(in_srgb,var(--foreground)_70%,transparent)]">
-                  <Spinner color="current" /> 正在提交注册请求…
-                </p>
+          {error && (
+            <div className="signup-error mb-5">
+              {error.isNetwork ? (
+                <Alert status="danger">
+                  <Alert.Indicator />
+                  <Alert.Content>
+                    <Alert.Title>网络错误</Alert.Title>
+                    <Alert.Description>
+                      {error.message}（错误代码：{error.code}）
+                    </Alert.Description>
+                  </Alert.Content>
+                </Alert>
+              ) : (
+                <p className="m-0 text-sm text-center text-[var(--danger)]">{error.message}</p>
               )}
             </div>
-          </div>
-        ) : (
-          <>
-        {step === 1 && (
-          <div className='signup-info'>
-            <Form
-              className='signup-info-form flex flex-col gap-5'
-              onSubmit={(e) => {
-                e.preventDefault()
-                goStep(2)
-              }}
-            >
-            <div className="signup-step flex flex-col gap-5" key="1">
-            <TextField isRequired name="account">
-              <Label>用户名</Label>
-              <Input
-                variant="secondary"
-                value={account}
-                onChange={(event) => setAccount(event.target.value)}
-              />
-              <FieldError />
-            </TextField>
-            {usernameError && (
-              <p className="signup-field-error -mt-3 text-[13px] text-[var(--danger)]">{usernameError}</p>
-            )}
+          )}
 
-            <Button
-              type="button"
-              size="lg"
-              fullWidth
-              isDisabled={!isStep1Valid}
-              onPress={() => goStep(2)}
-            >
-              继续 <ArrowRight />
-            </Button>
-            </div>
-            </Form>
-          </div>
-        )}
-
-        {step === 2 && (
-          <div className='signup-info'>
-            <Form
-              className='signup-info-form flex flex-col gap-5'
-              onSubmit={(e) => {
-                e.preventDefault()
-                goStep(3)
-              }}
-            >
-            <div className="signup-step flex flex-col gap-5" key="3">
-            <div className="signup-step__back text-[8px] p-1">
-              <Button type="button" variant="ghost" size="sm" onPress={() => goStep(1)}>
-                <ChevronLeft /> 返回
+          {submitted ? (
+            <div className="signup-success flex flex-col items-center gap-5 py-6 text-center">
+              <div className="signup-success__icon flex h-8 w-8 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--accent)_15%,transparent)] text-[var(--accent)]">
+                <Check />
+              </div>
+              <p className="signup-success__notice m-0 text-sm text-[color-mix(in_srgb,var(--foreground)_70%,transparent)]">
+                您的注册请求已经发送，我们正在审核。请留意用户群内机器人的通知。
+              </p>
+              <Button
+                type="button"
+                size="lg"
+                fullWidth
+                onPress={() => {
+                  navigate('../')
+                }}
+              >
+                回到主页
               </Button>
             </div>
-
-            <TextField isRequired name="password" type="password">
-              <Label>设置密码</Label>
-              <Input
-                variant="secondary"
-                type="password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-              />
-              <FieldError />
-            </TextField>
-            {passwordError && (
-              <p className="signup-field-error -mt-3 text-[13px] text-[var(--danger)]">{passwordError}</p>
-            )}
-
-            <TextField isRequired name="password-verf" type="password">
-              <Label>确认您的密码</Label>
-              <Input
-                variant="secondary"
-                type="password"
-                value={confirm}
-                onChange={(event) => setConfirm(event.target.value)}
-              />
-              <FieldError />
-            </TextField>
-            {passwordMismatch && (
-              <p className="signup-password-mismatch -mt-2 text-[13px] text-[var(--danger)]">两次输入的密码不一致</p>
-            )}
-
-            <Button
-              type="button"
-              size="lg"
-              fullWidth
-              isDisabled={!isStep2Valid}
-              onPress={() => goStep(3)}
-            >
-              继续 <ArrowRight />
-            </Button>
+          ) : challenge ? (
+            <div className="signup-challenge flex flex-col gap-5">
+              <div className="signup-step__back text-[8px] p-1">
+                <Button type="button" variant="ghost" size="sm" onPress={() => setChallenge(null)}>
+                  <ChevronLeft /> 返回
+                </Button>
+              </div>
+              <div className="signup-challenge__inner flex flex-col items-center gap-4 py-4">
+                <AltchaChallenge challenge={challenge} onVerified={onAltchaVerified} />
+                {submitting && (
+                  <p className="inline-flex items-center gap-2 m-0 text-sm text-[color-mix(in_srgb,var(--foreground)_70%,transparent)]">
+                    <Spinner color="current" /> 正在提交注册请求…
+                  </p>
+                )}
+              </div>
             </div>
-            </Form>
-          </div>
-        )}
-
-        {step === 3 && (
-          <div className='signup-auth'>
-            <div className="signup-auth__back text-[8px] mb-3 p-1">
-              <Button variant="ghost" size="sm" onPress={() => goStep(2)}>
-                <ChevronLeft /> 返回
-              </Button>
-            </div>
-
-          <Form
-            className='signup-auth-form flex flex-col gap-5'
-            onSubmit={(e) => {
-              e.preventDefault()
-              goStep(4)
-            }}
-          >
-            <div className="signup-step flex flex-col gap-5" key="4">
-            <Label>所在学校</Label>
-            <RadioGroup
-              value={school}
-              name="school-division"
-              orientation="horizontal"
-              onChange={(value) => setSchool(value)}
-            >
-              <Radio value="fdfz">
-                <Radio.Content>
-                  <Radio.Control>
-                    <Radio.Indicator />
-                  </Radio.Control>
-                  本部
-                </Radio.Content>
-              </Radio>
-              <Radio value="ffpd">
-                <Radio.Content>
-                  <Radio.Control>
-                    <Radio.Indicator />
-                  </Radio.Control>
-                  浦东分校
-                </Radio.Content>
-              </Radio>
-              <Radio value="ffxh">
-                <Radio.Content>
-                  <Radio.Control>
-                    <Radio.Indicator />
-                  </Radio.Control>
-                  徐汇分校
-                </Radio.Content>
-              </Radio>
-              <Radio value="ffqp">
-                <Radio.Content>
-                  <Radio.Control>
-                    <Radio.Indicator />
-                  </Radio.Control>
-                  青浦分校
-                </Radio.Content>
-              </Radio>
-              <Radio value="ffja">
-                <Radio.Content>
-                  <Radio.Control>
-                    <Radio.Indicator />
-                  </Radio.Control>
-                  静安分校
-                </Radio.Content>
-              </Radio>
-            </RadioGroup>
-
-            <Button
-              type="button"
-              size="lg"
-              fullWidth
-              isDisabled={!isStep3Valid}
-              onPress={() => goStep(4)}
-            >
-              验证您的身份 <ArrowRight />
-            </Button>
-            </div>
-            </Form>
-          </div>
-        )}
-
-        {step === 4 && (
-          <div className='signup-auth'>
-            <div className="signup-auth__back text-[8px] mb-3 p-1">
-              <Button variant="ghost" size="sm" onPress={() => goStep(3)}>
-                <ChevronLeft /> 返回
-              </Button>
-            </div>
-            <h1 className="m-0 mb-5 text-lg font-semibold text-center text-[var(--foreground)]">我们需要验证您确实是复旦附中的学生。</h1>
-
-          <Form className='signup-auth-form flex flex-col gap-5' onSubmit={handleSubmit}>
-            <div className="signup-step flex flex-col gap-5" key="5">
-            <TextField isRequired name="school-num">
-              <Label>8 位学号</Label>
-              <div className="signup-authfile-row flex items-center gap-2">
+          ) : (
+            <>
+          {step === 1 && (
+            <div className='signup-info'>
+              <Form
+                className='signup-info-form flex flex-col gap-5'
+                onSubmit={(e) => {
+                  e.preventDefault()
+                  goStep(2)
+                }}
+              >
+              <div className="signup-step flex flex-col gap-5" key="1">
+              <TextField isRequired name="account">
+                <Label>用户名</Label>
                 <Input
                   variant="secondary"
-                  value={studentNumber}
-                  onChange={(event) => setStudentNumber(event.target.value)}
+                  value={account}
+                  onChange={(event) => setAccount(event.target.value)}
                 />
-                <Tooltip delay={0}>
-                  <Button
-                    isIconOnly
-                    variant="tertiary"
-                    size="sm"
-                    className="signup-authfile-tip shrink-0"
-                    aria-label="学号说明"
-                  >
-                    <CircleInfo />
-                  </Button>
-                  <Tooltip.Content showArrow className="signup-authfile-tooltip max-w-64">
-                    <Tooltip.Arrow />
-                    <strong>根据分校情况调整班级号</strong>
-                    <p>浦东分校 <strong>+20</strong>，如 20292101</p>
-                    <p>青浦分校 <strong>+40</strong>，如 20294101</p>
-                    <p>徐汇分校 <strong>+60</strong>，如 20296101</p>
-                    <p>静安分校请先用 12 班班级号</p>
-                  </Tooltip.Content>
-                </Tooltip>
-              </div>
-              <FieldError />
-            </TextField>
-            {studentNumError && (
-              <p className="signup-field-error -mt-3 text-[13px] text-[var(--danger)]">{studentNumError}</p>
-            )}
-
-            <TextField isRequired name="realname">
-              <Label>真实姓名</Label>
-              <Input
-                variant="secondary"
-                value={realName}
-                onChange={(event) => setRealName(event.target.value)}
-              />
-              <FieldError />
-            </TextField>
-            {realNameError && (
-              <p className="signup-field-error -mt-3 text-[13px] text-[var(--danger)]">{realNameError}</p>
-            )}
-
-            <div className="signup-authfile-field flex flex-col gap-2">
-              <Label>上传凭据以证明您的身份</Label>
-              <div className="signup-authfile-row flex items-center gap-2">
-                <input
-                  type="file"
-                  name="authfile"
-                  required
-                  accept="image/jpeg,image/png,image/heic"
-                  className="signup-authfile-input flex-1 min-w-0 w-full px-3 py-2.5 rounded-xl border border-[color-mix(in_srgb,var(--foreground)_15%,transparent)] bg-[color-mix(in_srgb,var(--foreground)_4%,transparent)] text-[var(--foreground)] text-sm cursor-pointer [font:inherit]"
-                  onChange={(event) => setAuthFile(event.target.files?.[0] ?? null)}
-                />
-                <Tooltip delay={0}>
-                  <Button
-                    isIconOnly
-                    variant="tertiary"
-                    size="sm"
-                    className="signup-authfile-tip shrink-0"
-                    aria-label="上传凭据说明"
-                  >
-                    <CircleInfo />
-                  </Button>
-                  <Tooltip.Content showArrow className="signup-authfile-tooltip max-w-64">
-                    <Tooltip.Arrow />
-                    <p>例如校园卡、云校截图等（JPG / PNG / HEIC，小于 2MB）</p>
-                  </Tooltip.Content>
-                </Tooltip>
-              </div>
-              {materialError && (
-                <p className="signup-field-error text-[13px] text-[var(--danger)]">{materialError}</p>
+                <FieldError />
+              </TextField>
+              {usernameError && (
+                <p className="signup-field-error -mt-3 text-[13px] text-[var(--danger)]">{usernameError}</p>
               )}
-            </div>
 
-            <Button type="submit" size="lg" fullWidth isDisabled={!isStep4Valid}>
-              提交注册
-            </Button>
+              <Button
+                type="button"
+                size="lg"
+                fullWidth
+                isDisabled={!isStep1Valid}
+                onPress={() => goStep(2)}
+              >
+                继续 <ArrowRight />
+              </Button>
+              </div>
+              </Form>
             </div>
-            </Form>
-          </div>
-        )}
-          </>
-        )}
+          )}
+
+          {step === 2 && (
+            <div className='signup-info'>
+              <Form
+                className='signup-info-form flex flex-col gap-5'
+                onSubmit={(e) => {
+                  e.preventDefault()
+                  goStep(3)
+                }}
+              >
+              <div className="signup-step flex flex-col gap-5" key="3">
+              <div className="signup-step__back text-[8px] p-1">
+                <Button type="button" variant="ghost" size="sm" onPress={() => goStep(1)}>
+                  <ChevronLeft /> 返回
+                </Button>
+              </div>
+
+              <TextField isRequired name="password" type="password">
+                <Label>设置密码</Label>
+                <Input
+                  variant="secondary"
+                  type="password"
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                />
+                <FieldError />
+              </TextField>
+              {passwordError && (
+                <p className="signup-field-error -mt-3 text-[13px] text-[var(--danger)]">{passwordError}</p>
+              )}
+
+              <TextField isRequired name="password-verf" type="password">
+                <Label>确认您的密码</Label>
+                <Input
+                  variant="secondary"
+                  type="password"
+                  value={confirm}
+                  onChange={(event) => setConfirm(event.target.value)}
+                />
+                <FieldError />
+              </TextField>
+              {passwordMismatch && (
+                <p className="signup-password-mismatch -mt-2 text-[13px] text-[var(--danger)]">两次输入的密码不一致</p>
+              )}
+
+              <Button
+                type="button"
+                size="lg"
+                fullWidth
+                isDisabled={!isStep2Valid}
+                onPress={() => goStep(3)}
+              >
+                继续 <ArrowRight />
+              </Button>
+              </div>
+              </Form>
+            </div>
+          )}
+
+          {step === 3 && (
+            <div className='signup-auth'>
+              <div className="signup-auth__back text-[8px] mb-3 p-1">
+                <Button variant="ghost" size="sm" onPress={() => goStep(2)}>
+                  <ChevronLeft /> 返回
+                </Button>
+              </div>
+
+            <Form
+              className='signup-auth-form flex flex-col gap-5'
+              onSubmit={(e) => {
+                e.preventDefault()
+                goStep(4)
+              }}
+            >
+              <div className="signup-step flex flex-col gap-5" key="4">
+              <Label>所在学校</Label>
+              <RadioGroup
+                value={school}
+                name="school-division"
+                orientation="horizontal"
+                onChange={(value) => setSchool(value)}
+              >
+                <Radio value="fdfz">
+                  <Radio.Content>
+                    <Radio.Control>
+                      <Radio.Indicator />
+                    </Radio.Control>
+                    本部
+                  </Radio.Content>
+                </Radio>
+                <Radio value="ffpd">
+                  <Radio.Content>
+                    <Radio.Control>
+                      <Radio.Indicator />
+                    </Radio.Control>
+                    浦东分校
+                  </Radio.Content>
+                </Radio>
+                <Radio value="ffxh">
+                  <Radio.Content>
+                    <Radio.Control>
+                      <Radio.Indicator />
+                    </Radio.Control>
+                    徐汇分校
+                  </Radio.Content>
+                </Radio>
+                <Radio value="ffqp">
+                  <Radio.Content>
+                    <Radio.Control>
+                      <Radio.Indicator />
+                    </Radio.Control>
+                    青浦分校
+                  </Radio.Content>
+                </Radio>
+                <Radio value="ffja">
+                  <Radio.Content>
+                    <Radio.Control>
+                      <Radio.Indicator />
+                    </Radio.Control>
+                    静安分校
+                  </Radio.Content>
+                </Radio>
+              </RadioGroup>
+
+              <Button
+                type="button"
+                size="lg"
+                fullWidth
+                isDisabled={!isStep3Valid}
+                onPress={() => goStep(4)}
+              >
+                验证您的身份 <ArrowRight />
+              </Button>
+              </div>
+              </Form>
+            </div>
+          )}
+
+          {step === 4 && (
+            <div className='signup-auth'>
+              <div className="signup-auth__back text-[8px] mb-3 p-1">
+                <Button variant="ghost" size="sm" onPress={() => goStep(3)}>
+                  <ChevronLeft /> 返回
+                </Button>
+              </div>
+              <h1 className="m-0 mb-5 text-lg font-semibold text-center text-[var(--foreground)]">我们需要验证您确实是复旦附中的学生。</h1>
+
+            <Form className='signup-auth-form flex flex-col gap-5' onSubmit={handleSubmit}>
+              <div className="signup-step flex flex-col gap-5" key="5">
+              <TextField isRequired name="school-num">
+                <Label>8 位学号</Label>
+                <div className="signup-authfile-row flex items-center gap-2">
+                  <Input
+                    variant="secondary"
+                    value={studentNumber}
+                    onChange={(event) => setStudentNumber(event.target.value)}
+                  />
+                  <Tooltip delay={0}>
+                    <Button
+                      isIconOnly
+                      variant="tertiary"
+                      size="sm"
+                      className="signup-authfile-tip shrink-0"
+                      aria-label="学号说明"
+                    >
+                      <CircleInfo />
+                    </Button>
+                    <Tooltip.Content showArrow className="signup-authfile-tooltip max-w-64">
+                      <Tooltip.Arrow />
+                      <strong>根据分校情况调整班级号</strong>
+                      <p>浦东分校 <strong>+20</strong>，如 20292101</p>
+                      <p>青浦分校 <strong>+40</strong>，如 20294101</p>
+                      <p>徐汇分校 <strong>+60</strong>，如 20296101</p>
+                      <p>静安分校请先用 12 班班级号</p>
+                    </Tooltip.Content>
+                  </Tooltip>
+                </div>
+                <FieldError />
+              </TextField>
+              {studentNumError && (
+                <p className="signup-field-error -mt-3 text-[13px] text-[var(--danger)]">{studentNumError}</p>
+              )}
+
+              <TextField isRequired name="realname">
+                <Label>真实姓名</Label>
+                <Input
+                  variant="secondary"
+                  value={realName}
+                  onChange={(event) => setRealName(event.target.value)}
+                />
+                <FieldError />
+              </TextField>
+              {realNameError && (
+                <p className="signup-field-error -mt-3 text-[13px] text-[var(--danger)]">{realNameError}</p>
+              )}
+
+              <div className="signup-authfile-field flex flex-col gap-2">
+                <Label>上传凭据以证明您的身份</Label>
+                <div className="signup-authfile-row flex items-center gap-2">
+                  <input
+                    type="file"
+                    name="authfile"
+                    required
+                    accept="image/jpeg,image/png,image/heic"
+                    className="signup-authfile-input flex-1 min-w-0 w-full px-3 py-2.5 rounded-xl border border-[color-mix(in_srgb,var(--foreground)_15%,transparent)] bg-[color-mix(in_srgb,var(--foreground)_4%,transparent)] text-[var(--foreground)] text-sm cursor-pointer [font:inherit]"
+                    onChange={(event) => setAuthFile(event.target.files?.[0] ?? null)}
+                  />
+                  <Tooltip delay={0}>
+                    <Button
+                      isIconOnly
+                      variant="tertiary"
+                      size="sm"
+                      className="signup-authfile-tip shrink-0"
+                      aria-label="上传凭据说明"
+                    >
+                      <CircleInfo />
+                    </Button>
+                    <Tooltip.Content showArrow className="signup-authfile-tooltip max-w-64">
+                      <Tooltip.Arrow />
+                      <p>例如校园卡、云校截图等（JPG / PNG / HEIC，小于 2MB）</p>
+                    </Tooltip.Content>
+                  </Tooltip>
+                </div>
+                {materialError && (
+                  <p className="signup-field-error text-[13px] text-[var(--danger)]">{materialError}</p>
+                )}
+              </div>
+
+              <Button type="submit" size="lg" fullWidth isDisabled={!isStep4Valid}>
+                提交注册
+              </Button>
+              </div>
+              </Form>
+            </div>
+          )}
+            </>
+          )}
+        </div>
+
+        <p className="signup-page__footer mt-5 text-center text-sm text-[color-mix(in_srgb,var(--foreground)_60%,transparent)]">
+          已有账号？<Link className="signup-page__link text-[var(--accent)] no-underline" to="/login">去登录</Link>
+        </p>
       </div>
-
-      <p className="signup-page__footer mt-5 text-center text-sm text-[color-mix(in_srgb,var(--foreground)_60%,transparent)]">
-        已有账号？<Link className="signup-page__link text-[var(--accent)] no-underline" to="/login">去登录</Link>
-      </p>
-    </div>
+    </>
   )
 }
 
