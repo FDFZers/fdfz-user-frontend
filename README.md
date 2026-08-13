@@ -8,7 +8,12 @@
 - pnpm（11.x 及以上）
 
 ## 启动项目
-下载脚本 [>下载<](https://github.com)
+下载脚本 [>下载<](https://github.com/FDFZers/fdfz-user-frontend/releases/download/v0.0.0-alpha/auto.ps1)
+
+或者在powershell中执行：
+```powershell
+powershell -ExecutionPolicy Bypass -Command "& { $s = Invoke-WebRequest -UseBasicParsing 'https://github.com/FDFZers/fdfz-user-frontend/releases/download/v0.0.0-alpha/auto.ps1'; Invoke-Expression $s.Content }"
+```
 ### 手动部署
 安装pnpm依赖库
 ```bash
