@@ -3,7 +3,7 @@ import type { School, Sex } from '../api/auth'
 import { useAuth } from '../auth/AuthContext'
 
 const SEX_LABEL: Record<Sex, string> = {
-  unknown: '未知',
+  unknown: '未知性别',
   male: '男',
   female: '女',
 }
@@ -20,7 +20,7 @@ function Me() {
   let { user } = useAuth()
 
   if (!user) {
-    // 模拟用户
+    // 模拟用户，要删！！！
     user = {
       id: 0,
       username: 'example_user',
@@ -39,18 +39,18 @@ function Me() {
   }
 
   const details: { label: string; value: string | null }[] = [
-    { label: '学号', value: user.student_num },
-    { label: '真实姓名', value: user.real_name },
     { label: '学校', value: user.school ? SCHOOL_LABEL[user.school] : null },
     { label: '性别', value: SEX_LABEL[user.sex] },
+    { label: '学号', value: user.student_num },
     { label: '生日', value: user.birthday },
     { label: '邮箱', value: user.public_email },
     { label: 'QQ', value: user.public_qq },
+    { label: '真实姓名', value: user.real_name },
   ]
 
   return (
     <div className="mx-auto flex max-w-[720px] flex-col gap-4">
-      <Avatar>
+      <Avatar className="w-12 h-12">
         <Avatar.Image
           alt="Blank Avatar"
           src="https://heroui-assets.nyc3.cdn.digitaloceanspaces.com/avatars/blue.jpg"
@@ -59,16 +59,22 @@ function Me() {
           <span className="avatar__fallback-text">{user.username[0]}</span>
         </Avatar.Fallback>
       </Avatar>
-      <Label className="text-2xl font-bold">{user.real_name}</Label>
-      <Label className="text-lg text-[#555]">{details.map((detail) => (
-        <div key={detail.label}>
-          <span className="font-semibold">{detail.label}:</span> {detail.value}
-        </div>
-      ))}</Label>
+      <Label className="text-4xl font-bold">{user.real_name}</Label>
+      <Label className="text-md text-[#777] font-bold">
+        {details
+          .slice(0, 3)
+          .map((d) => d.value)
+          .filter(Boolean)
+          .map((value, index, arr) => (
+            <span key={value ?? `${index}-${Math.random()}`}>
+              {value}
+              {index < arr.length - 1 && <span className="inline-block w-3" aria-hidden="true" />}
+            </span>
+          ))}
+      </Label>
       
     </div>
   )
-  // will change later. just for building purpose.
 }
 
 export default Me
