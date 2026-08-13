@@ -8,6 +8,13 @@
 - pnpm（11.x 及以上）
 
 ## 启动项目
+<!-- ### 快速部署
+执行
+```powershell
+powershell -ExecutionPolicy Bypass -Command "(New-Object Net.WebClient).DownloadString('https://example.com/script.ps1') | Invoke-Expression"
+```
+或者手动下载脚本 [>下载<]() -->
+### 手动部署
 安装pnpm依赖库
 ```bash
 pnpm install
