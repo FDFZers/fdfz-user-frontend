@@ -38,16 +38,6 @@ function Me() {
     }
   }
 
-  const details: { label: string; value: string | null }[] = [
-    { label: '学号', value: user.student_num },
-    { label: '真实姓名', value: user.real_name },
-    { label: '学校', value: user.school ? SCHOOL_LABEL[user.school] : null },
-    { label: '性别', value: SEX_LABEL[user.sex] },
-    { label: '生日', value: user.birthday },
-    { label: '邮箱', value: user.public_email },
-    { label: 'QQ', value: user.public_qq },
-  ]
-
   return (
     <div className="mx-auto flex max-w-[720px] flex-col gap-4">
       <Avatar>
