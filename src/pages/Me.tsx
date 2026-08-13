@@ -1,4 +1,4 @@
-import { Avatar, Card, Chip, Label } from '@heroui/react'
+import { Avatar, Label } from '@heroui/react'
 import type { School, Sex } from '../api/auth'
 import { useAuth } from '../auth/AuthContext'
 
@@ -59,7 +59,7 @@ function Me() {
           <span className="avatar__fallback-text">{user.username[0]}</span>
         </Avatar.Fallback>
       </Avatar>
-      <Label className="text-2xl font-bold">{user.username}</Label>
+      <Label className="text-2xl font-bold">{user.real_name}</Label>
     </div>
   )
 }
