@@ -20,17 +20,7 @@ const navItems = [
 
 function Sidebar({ collapsed }: SidebarProps) {
   const navigate = useNavigate()
-  const { user, logout, login } = useAuth()
-
-  // 测试账号
-  const handleMockLogin = async () => {
-    try {
-      const mod = await import('../mock/mockAccount.local')
-      login(mod.buildMockTokens(), mod.buildMockUser())
-    } catch {
-      console.warn('未找到模拟账号')
-    }
-  }
+  const { user, logout } = useAuth()
 
   return (
     <Surface
@@ -123,17 +113,6 @@ function Sidebar({ collapsed }: SidebarProps) {
           </AlertDialog>
         ) : (
           <>
-            {import.meta.env.DEV && (
-              <Button
-                variant="tertiary"
-                size="md"
-                fullWidth
-                onPress={handleMockLogin}
-                className="mb-2"
-              >
-                模拟登录
-              </Button>
-            )}
             <Button
               variant="ghost"
               size="md"
