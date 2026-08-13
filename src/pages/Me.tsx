@@ -1,4 +1,5 @@
-import { Avatar, Label } from '@heroui/react'
+import { Avatar, Button, Chip, Label } from '@heroui/react'
+import { Pencil } from '@gravity-ui/icons'
 import type { School, Sex } from '../api/auth'
 import { useAuth } from '../auth/AuthContext'
 
@@ -22,19 +23,19 @@ function Me() {
   if (!user) {
     // 模拟用户，要删！！！
     user = {
-      id: 1e9-1,
+      id: 0,
       username: 'example_user',
-      student_num: '20261501',
-      real_name: '张三',
+      student_num: '00000000',
+      real_name: '示例用户',
       school: 'fdfz' as School,
       sex: 'unknown' as Sex,
-      birthday: '2008-8-8',
-      public_email: 'example@example.com',
-      public_qq: 'xxxxxxxxx',
+      birthday: '2000-01-01',
+      public_email: 'demo@example.com',
+      public_qq: '0123456789',
       status: 'active',
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
-      bio: '这是一个示例用户。',
+      bio: '这是一个模拟用户，没有介绍... ',
     }
   }
 
@@ -47,6 +48,10 @@ function Me() {
     { label: 'QQ', value: user.public_qq },
     { label: '真实姓名', value: user.real_name },
   ]
+
+  const infoChips = details
+    .slice(3, 6)
+    .filter((d): d is { label: string; value: string } => Boolean(d.value))
 
   return (
     <div className="mx-auto flex max-w-[720px] flex-col gap-4">
@@ -72,8 +77,38 @@ function Me() {
             </span>
           ))}
       </Label>
-      
+      <div className="flex flex-wrap items-center gap-2">
+        {infoChips.map(({ label, value }) => (
+          <>
+            <label className="text-[0.75rem]">{label}</label>
+            <Chip
+              key={label}
+              size="sm"
+              variant="primary"
+              className="text-[0.75rem] text-[color-mix(in_srgb,var(--foreground)_70%,transparent)] mr-3"
+            >
+              {value}
+            </Chip>
+          </>
+        ))}
+        <Button
+          type="button"
+          aria-label="修改信息"
+          variant="tertiary"
+          className="inline-flex h-6 w-6"
+        >
+          <Pencil className="h-3.5 w-3.5" />
+        </Button>
+      </div>
+
+      <div className="mt-4 flex flex-col gap-2">
+        <Label className="text-xl font-bold">个人介绍</Label>
+        <Label className="text-[0.875rem] text-[#555]">
+          {user.bio || '这个人很懒，什么都没写... '}
+        </Label>
+      </div>
     </div>
+
   )
 }
 
