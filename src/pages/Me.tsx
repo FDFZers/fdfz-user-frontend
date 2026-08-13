@@ -22,19 +22,19 @@ function Me() {
   if (!user) {
     // 模拟用户，要删！！！
     user = {
-      id: 0,
+      id: 1e9-1,
       username: 'example_user',
-      student_num: '00000000',
-      real_name: '示例用户',
+      student_num: '20261501',
+      real_name: '张三',
       school: 'fdfz' as School,
       sex: 'unknown' as Sex,
-      birthday: '2000-01-01',
-      public_email: 'demo@example.com',
-      public_qq: '123456789',
+      birthday: '2008-8-8',
+      public_email: 'example@example.com',
+      public_qq: 'xxxxxxxxx',
       status: 'active',
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
-      bio: '这是一个模拟用户。',
+      bio: '这是一个示例用户。',
     }
   }
 
