@@ -50,50 +50,57 @@ export function initLogin(
   })
 }
 
-/** 获取鉴权会话状态（SSE，取首个事件解析为 AuthSession） */
-export async function getSession(sessionId: string): Promise<AuthSession> {
-  const res = await fetch(`${API_BASE}/auth/session/${encodeURIComponent(sessionId)}`, {
-    headers: { Accept: 'text/event-stream' },
-  })
-  if (!res.ok) {
-    let error: string | undefined
-    try {
-      const json = (await res.json()) as { error?: string }
-      error = json.error
-    } catch {
-      error = undefined
+/** 解析 SSE 会话事件负载为 AuthSession */
+export function parseAuthSession(payload: Record<string, unknown>): AuthSession {
+  const parseArr = (raw?: unknown): NextStep[] => {
+    if (Array.isArray(raw)) {
+      return raw.filter((item): item is NextStep => typeof item === 'string' && item in ['password', 'email', 'qq', 'totp']) as NextStep[]
     }
-    throw new ApiError(res.status, error)
-  }
-  const text = await res.text()
-  // SSE 事件之间以空行分隔，取第一个事件解析
-  const firstEvent = text.split(/\n\s*\n/)[0] || text
-  const data: Record<string, string> = {}
-  for (const line of firstEvent.split('\n')) {
-    const idx = line.indexOf(':')
-    if (idx === -1) continue
-    const key = line.slice(0, idx).trim()
-    const value = line.slice(idx + 1).trim()
-    if (key && value) data[key] = value
-  }
-  const parseArr = (raw?: string): NextStep[] => {
-    if (!raw) return []
-    try {
-      const arr = JSON.parse(raw) as unknown
-      return Array.isArray(arr) ? (arr as NextStep[]) : []
-    } catch {
-      return []
+    if (typeof raw === 'string') {
+      try {
+        const arr = JSON.parse(raw) as unknown
+        return parseArr(arr)
+      } catch {
+        return []
+      }
     }
+    return []
   }
+
   return {
-    id: data.id ?? '',
-    type: (data.type as AuthSession['type']) ?? 'login',
-    status: (data.status as AuthSessionStatus) ?? 'active',
-    prev_steps: parseArr(data.prev_steps),
-    next_steps: parseArr(data.next_steps),
-    created_at: data.created_at ?? '',
-    expires_at: data.expires_at ?? '',
+    id: String(payload.id ?? ''),
+    type: (payload.type as AuthSession['type']) ?? 'login',
+    status: (payload.status as AuthSessionStatus) ?? 'active',
+    prev_steps: parseArr(payload.prev_steps),
+    next_steps: parseArr(payload.next_steps),
+    created_at: String(payload.created_at ?? ''),
+    expires_at: String(payload.expires_at ?? ''),
   }
+}
+
+/**
+ * 订阅鉴权会话状态更新（SSE）。
+ * 使用浏览器原生 EventSource 建立长连接，后端主动推送状态变化，且自带自动重连。
+ * 返回的 EventSource 需在组件卸载或不再需要时调用 .close() 释放连接。
+ */
+export function subscribeSession(
+  sessionId: string,
+  onUpdate: (session: AuthSession) => void,
+  onError?: (error: ApiError) => void,
+): EventSource {
+  const es = new EventSource(`${API_BASE}/auth/session/${encodeURIComponent(sessionId)}`)
+  es.onmessage = (e: MessageEvent<string>) => {
+    try {
+      onUpdate(parseAuthSession(JSON.parse(e.data) as Record<string, unknown>))
+    } catch {
+      /* 忽略无法解析的事件 */
+    }
+  }
+  es.onerror = () => {
+    // EventSource 会自动重连，这里仅提示瞬时中断
+    onError?.(new ApiError(0, '会话连接中断，正在尝试重连'))
+  }
+  return es
 }
 
 /** 取消鉴权会话 */

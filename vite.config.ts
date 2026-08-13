@@ -7,12 +7,13 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
     port: 5173,
-    // 开发环境下将 `/api` 代理到后端，避免跨域 CORS 问题。
-    // 前端请求 `/api/v1/...`，代理原样转发到 https://space.dev.fdfz.top/api/v1/...
+    // 代理目标必须指向当前正确的 API 域名，不能误用本地后端。
+    // 前端请求 `/api/v1/...`，代理原样转发到 https://fdfz.top/api/v1/...
     proxy: {
       '/api': {
-        target: 'https://space.dev.fdfz.top',
+        target: 'https://fdfz.top',
         changeOrigin: true,
+        secure: true,
       },
     },
   },

@@ -17,8 +17,8 @@ import {
   cancelSession,
   finalizeLogin,
   getChallenge,
-  getSession,
   initLogin,
+  subscribeSession,
   requestEmailCode,
   startQq,
   verifyEmailCode,
@@ -168,28 +168,21 @@ function Login() {
     [account, goPhase, login, navigate],
   )
 
-  const refreshSession = useCallback(
-    async (sid: string) => {
-      try {
-        const s = await getSession(sid)
-        setSession(s)
-        if (s.status === 'completed') {
-          await finalize(sid)
-        }
-      } catch (e) {
-        setError(toErrorInfo(e))
-      }
-    },
-    [finalize],
-  )
-
+  // 通过原生 EventSource 订阅会话状态更新（SSE，自动重连，无需轮询）
   useEffect(() => {
     if (!sessionId || phase !== 'verify') return
-    const id = setInterval(() => {
-      void refreshSession(sessionId)
-    }, 5000)
-    return () => clearInterval(id)
-  }, [sessionId, phase, refreshSession])
+    const es = subscribeSession(
+      sessionId,
+      (s) => {
+        setSession(s)
+        if (s.status === 'completed') {
+          void finalize(sessionId)
+        }
+      },
+      (err) => setError(toErrorInfo(err)),
+    )
+    return () => es.close()
+  }, [sessionId, phase, finalize])
 
   useEffect(() => {
     return () => {
@@ -208,14 +201,13 @@ function Login() {
         const { session_id } = await initLogin(payload)
         setSessionId(session_id)
         goPhase('verify')
-        await refreshSession(session_id)
       } catch (e) {
         setError(toErrorInfo(e))
       } finally {
         setSubmitting(false)
       }
     },
-    [submitting, sessionId, goPhase, refreshSession],
+    [submitting, sessionId, goPhase],
   )
 
   // 第一步：填写邮箱，获取并展示 ALTCHA Challenge
@@ -250,7 +242,6 @@ function Login() {
     setError(null)
     try {
       await verifyPassword(sessionId, account, password)
-      await refreshSession(sessionId)
     } catch (err) {
       setError(toErrorInfo(err))
     } finally {
@@ -283,7 +274,6 @@ function Login() {
     setError(null)
     try {
       await verifyEmailCode(emailCode)
-      await refreshSession(sessionId)
     } catch (err) {
       setError(toErrorInfo(err))
     } finally {
@@ -302,7 +292,6 @@ function Login() {
     setError(null)
     try {
       await verifyTotp(sessionId, totpCode)
-      await refreshSession(sessionId)
     } catch (err) {
       setError(toErrorInfo(err))
     } finally {
@@ -415,13 +404,20 @@ function Login() {
           </div>
         )}
 
-        {phase === 'verify' && session && currentStep && (
-          <div className="login-step flex flex-col gap-5" key={`verify-${currentStep}`}>
+        {phase === 'verify' && session && (
+          <div className="login-step flex flex-col gap-5" key={currentStep ?? 'verify-waiting'}>
             <div className="login-step__back text-[8px] p-1">
               <Button type="button" variant="ghost" size="sm" onPress={goBackToAccount}>
                 <ChevronLeft /> 返回
               </Button>
             </div>
+
+            {!currentStep && (
+              <div className="login-step__inner flex flex-col items-center gap-4 py-4">
+                <Spinner color="current" />
+                <p className="m-0 text-sm text-[color-mix(in_srgb,var(--foreground)_70%,transparent)]">正在等待下一步验证…</p>
+              </div>
+            )}
 
             {currentStep === 'password' && (
               <Form onSubmit={submitPassword} className="login-step__inner flex flex-col gap-5">
