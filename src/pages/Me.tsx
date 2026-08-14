@@ -25,17 +25,17 @@ function Me() {
     user = {
       id: 0,
       username: 'example_user',
-      student_num: '00000000',
-      real_name: '示例用户',
+      student_num: '',
+      real_name: '访客',
       school: 'fdfz' as School,
       sex: 'unknown' as Sex,
-      birthday: '2000-01-01',
-      public_email: 'demo@example.com',
-      public_qq: '0123456789',
+      birthday: '未知',
+      public_email: '无',
+      public_qq: '无',
       status: 'active',
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
-      bio: '这是一个模拟用户，没有介绍... ',
+      bio: '请先登录再查看此页面！',
     }
   }
 
