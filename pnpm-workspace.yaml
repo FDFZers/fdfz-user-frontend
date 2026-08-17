@@ -1,9 +1,10 @@
-# Single-package workspace rooted at the repository root.
-# The `packages` field is required by pnpm's workspace manifest
-# validation (otherwise: "packages field missing or empty").
-packages:
-  - "."
-
-# pnpm 11: allow the esbuild postinstall build script.
-allowBuilds:
-  esbuild: true
+catalog:
+  vite: npm:@voidzero-dev/vite-plus-core@0.2.7
+  vite-plus: 0.2.7
+overrides:
+  vite: "catalog:"
+peerDependencyRules:
+  allowAny:
+    - vite
+  allowedVersions:
+    vite: "*"

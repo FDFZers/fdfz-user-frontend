@@ -12,9 +12,6 @@ dist
 dist-ssr
 *.local
 
-# 本地模拟账号（绝不提交）
-src/mock/
-
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
@@ -28,9 +25,10 @@ src/mock/
 !.vscode/
 !.vscode/settings.json
 !.vscode/extensions.json
-.github
 
 # dotenv environment variable files
 .env
 .env.*
 !.env.example
+
+src/mock/*
