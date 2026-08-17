@@ -1,72 +1,68 @@
-import { type Key, useEffect, useState } from 'react'
-import { Button, Tabs } from '@heroui/react'
-import {
-  LayoutSideContentLeft,
-  Sun,
-  Moon,
-} from '@gravity-ui/icons'
-import { Outlet } from 'react-router-dom'
-import './App.css'
-import './base.css'
-import Sidebar from './components/Sidebar'
+import { LucideLayoutPanelLeft, LucideMoon, LucideSun } from "lucide-react";
+import { type Key, useEffect, useState } from "react";
+import { Button, Tabs } from "@heroui/react";
+import { Outlet } from "react-router";
+import "./App.css";
+import "./base.css";
+import Sidebar from "./components/Sidebar";
 
-const THEME_KEY = 'ffwiki_theme'
+const THEME_KEY = "ffwiki_theme";
 
-function getInitialTheme(): 'light' | 'dark' {
+function getInitialTheme(): "light" | "dark" {
   try {
-    const saved = localStorage.getItem(THEME_KEY)
-    if (saved === 'light' || saved === 'dark') return saved
+    const saved = localStorage.getItem(THEME_KEY);
+    if (saved === "light" || saved === "dark") return saved;
   } catch {
     /* ignore */
   }
-  return 'light'
+  return "light";
 }
 
-function applyTheme(theme: 'light' | 'dark') {
-  const root = document.documentElement
-  root.classList.remove('light', 'dark')
-  root.classList.add(theme)
-  root.setAttribute('data-theme', theme)
+function applyTheme(theme: "light" | "dark") {
+  const root = document.documentElement;
+  root.classList.remove("light", "dark");
+  root.classList.add(theme);
+  root.setAttribute("data-theme", theme);
 }
 
 // Track whether the viewport is "mobile" (< 768px) so the sidebar can behave
 // as an off-canvas drawer instead of a fixed side column.
 function useMediaQuery(query: string): boolean {
-  const [matches, setMatches] = useState(() => window.matchMedia(query).matches)
+  const [matches, setMatches] = useState(() => window.matchMedia(query).matches);
 
   useEffect(() => {
-    const mql = window.matchMedia(query)
-    const handler = (e: MediaQueryListEvent) => setMatches(e.matches)
-    setMatches(mql.matches)
-    mql.addEventListener('change', handler)
-    return () => mql.removeEventListener('change', handler)
-  }, [query])
+    const mql = window.matchMedia(query);
+    const handler = (e: MediaQueryListEvent) => setMatches(e.matches);
+    setMatches(mql.matches);
+    mql.addEventListener("change", handler);
+    return () => mql.removeEventListener("change", handler);
+  }, [query]);
 
-  return matches
+  return matches;
 }
 
 function App() {
-  const isMobile = useMediaQuery('(max-width: 767px)')
+  const isMobile = useMediaQuery("(max-width: 767px)");
   // On mobile the drawer starts closed so it never covers the content.
-  const [collapsed, setCollapsed] = useState(() => isMobile)
-  const [theme, setTheme] = useState<'light' | 'dark'>(getInitialTheme)
+  const [collapsed, setCollapsed] = useState(() => isMobile);
+  const [theme, setTheme] = useState<"light" | "dark">(getInitialTheme);
 
   useEffect(() => {
-    applyTheme(theme)
-  }, [theme])
+    applyTheme(theme);
+  }, [theme]);
 
   // When crossing onto a mobile viewport, close the drawer.
   useEffect(() => {
-    if (isMobile) setCollapsed(true)
-  }, [isMobile])
+    if (isMobile) setCollapsed(true);
+  }, [isMobile]);
 
-  const toggleSidebar = () => setCollapsed((c) => !c)
+  const toggleSidebar = () => setCollapsed((c) => !c);
 
   const handleThemeChange = (key: Key) => {
-    const next = key === 'dark' ? 'dark' : 'light'
-    setTheme(next)
-    localStorage.setItem(THEME_KEY, next)
-  }
+    const next = key === "dark" ? "dark" : "light";
+    setTheme(next);
+    localStorage.setItem(THEME_KEY, next);
+  };
 
   return (
     <div className="app-shell relative flex h-screen overflow-hidden">
@@ -89,7 +85,7 @@ function App() {
               onPress={toggleSidebar}
               aria-label="切换侧边栏"
             >
-              <LayoutSideContentLeft />
+              <LucideLayoutPanelLeft />
             </Button>
           </div>
 
@@ -98,11 +94,11 @@ function App() {
               <Tabs.ListContainer>
                 <Tabs.List aria-label="主题">
                   <Tabs.Tab id="light">
-                    <Sun />
+                    <LucideSun />
                     <Tabs.Indicator />
                   </Tabs.Tab>
                   <Tabs.Tab id="dark">
-                    <Moon />
+                    <LucideMoon />
                     <Tabs.Indicator />
                   </Tabs.Tab>
                 </Tabs.List>
@@ -116,7 +112,7 @@ function App() {
         </main>
       </div>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;

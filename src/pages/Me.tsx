@@ -1,57 +1,57 @@
-import { Avatar, Button, Chip, Label } from '@heroui/react'
-import { Pencil } from '@gravity-ui/icons'
-import type { School, Sex } from '../api/auth'
-import { useAuth } from '../auth/AuthContext'
+import { Avatar, Button, Chip, Label } from "@heroui/react";
+import { LucidePen } from "lucide-react";
+import type { School, Sex } from "../api/auth";
+import { useAuth } from "../auth/AuthContext";
 
 const SEX_LABEL: Record<Sex, string> = {
-  unknown: '未知性别',
-  male: '男',
-  female: '女',
-}
+  unknown: "未知性别",
+  male: "男",
+  female: "女",
+};
 
 const SCHOOL_LABEL: Record<School, string> = {
-  fdfz: '本校',
-  ffpd: '浦东分校',
-  ffqp: '青浦分校',
-  ffxh: '徐汇分校',
-  ffja: '静安分校',
-}
+  fdfz: "本校",
+  ffpd: "浦东分校",
+  ffqp: "青浦分校",
+  ffxh: "徐汇分校",
+  ffja: "静安分校",
+};
 
 function Me() {
-  let { user } = useAuth()
+  let { user } = useAuth();
 
   if (!user) {
     // 模拟用户，要删！！！
     user = {
       id: 0,
-      username: 'example_user',
-      student_num: '',
-      real_name: '访客',
-      school: 'fdfz' as School,
-      sex: 'unknown' as Sex,
-      birthday: '未知',
-      public_email: '无',
-      public_qq: '无',
-      status: 'active',
+      username: "example_user",
+      student_num: "",
+      real_name: "访客",
+      school: "fdfz" as School,
+      sex: "unknown" as Sex,
+      birthday: "未知",
+      public_email: "无",
+      public_qq: "无",
+      status: "active",
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
-      bio: '请先登录再查看此页面！',
-    }
+      bio: "请先登录再查看此页面！",
+    };
   }
 
   const details: { label: string; value: string | null }[] = [
-    { label: '学校', value: user.school ? SCHOOL_LABEL[user.school] : null },
-    { label: '性别', value: SEX_LABEL[user.sex] },
-    { label: '学号', value: user.student_num },
-    { label: '生日', value: user.birthday },
-    { label: '邮箱', value: user.public_email },
-    { label: 'QQ', value: user.public_qq },
-    { label: '真实姓名', value: user.real_name },
-  ]
+    { label: "学校", value: user.school ? SCHOOL_LABEL[user.school] : null },
+    { label: "性别", value: SEX_LABEL[user.sex] },
+    { label: "学号", value: user.student_num },
+    { label: "生日", value: user.birthday },
+    { label: "邮箱", value: user.public_email },
+    { label: "QQ", value: user.public_qq },
+    { label: "真实姓名", value: user.real_name },
+  ];
 
   const infoChips = details
     .slice(3, 6)
-    .filter((d): d is { label: string; value: string } => Boolean(d.value))
+    .filter((d): d is { label: string; value: string } => Boolean(d.value));
 
   return (
     <div className="mx-auto flex max-w-[720px] flex-col gap-4">
@@ -97,19 +97,18 @@ function Me() {
           variant="tertiary"
           className="inline-flex h-6 w-6"
         >
-          <Pencil className="h-3.5 w-3.5" />
+          <LucidePen className="h-3.5 w-3.5" />
         </Button>
       </div>
 
       <div className="mt-4 flex flex-col gap-2">
         <Label className="text-xl font-bold">个人介绍</Label>
         <Label className="text-[0.875rem] text-[#555]">
-          {user.bio || '这个人很懒，什么都没写... '}
+          {user.bio || "这个人很懒，什么都没写... "}
         </Label>
       </div>
     </div>
-
-  )
+  );
 }
 
-export default Me
+export default Me;

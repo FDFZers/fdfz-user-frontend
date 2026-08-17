@@ -21,6 +21,7 @@
     "@react-router/serve": "^8.3.0",
     "@reactuses/core": "^6.4.2",
     "@tailwindcss/vite": "^4.3.3",
+    "altcha": "^3.2.1",
     "dayjs": "^1.11.21",
     "highlight.js": "^11.11.1",
     "lucide-react": "^1.31.0",
