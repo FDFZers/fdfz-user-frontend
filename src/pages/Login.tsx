@@ -1,7 +1,18 @@
 import { LucideArrowRight, LucideMail, LucideUndo2 } from "lucide-react";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useNavigate, Link } from "react-router";
-import { Alert, Button, FieldError, Form, Input, Label, Spinner, TextField } from "@heroui/react";
+import {
+  Alert,
+  Button,
+  Card,
+  Checkbox,
+  FieldError,
+  Form,
+  Input,
+  Label,
+  Spinner,
+  TextField,
+} from "@heroui/react";
 import { useAuth } from "../auth/AuthContext";
 import AltchaChallenge from "../components/AltchaChallenge";
 import {
@@ -21,7 +32,6 @@ import {
 } from "../api/auth";
 import { ApiError } from "../api/client";
 import "./Login.css";
-import "../base.css";
 
 type Phase = "account" | "challenge" | "verify" | "finalizing";
 
@@ -116,6 +126,7 @@ function Login() {
 
   const cardRef = useRef<HTMLDivElement>(null);
   const finalizedRef = useRef(false);
+  const passwordAutoSubmittedRef = useRef(false);
 
   const goPhase = useCallback((next: Phase) => {
     const el = cardRef.current;
@@ -151,7 +162,7 @@ function Login() {
           created_at: "",
           updated_at: "",
         });
-        navigate("/");
+        await navigate("/");
       } catch (e) {
         finalizedRef.current = false;
         goPhase("verify");
@@ -224,8 +235,8 @@ function Login() {
     void startLogin(payload);
   };
 
-  const submitPassword = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const submitPassword = async (e?: React.FormEvent<HTMLFormElement>) => {
+    e?.preventDefault();
     if (!sessionId) return;
     if (!isPasswordValid) {
       setError(fieldError("请输入密码"));
@@ -241,6 +252,20 @@ function Login() {
       setSubmitting(false);
     }
   };
+
+  // 密码已在账号页一并填写，进入密码验证步骤时自动提交
+  useEffect(() => {
+    if (
+      phase === "verify" &&
+      currentStep === "password" &&
+      sessionId &&
+      isPasswordValid &&
+      !passwordAutoSubmittedRef.current
+    ) {
+      passwordAutoSubmittedRef.current = true;
+      void submitPassword();
+    }
+  }, [phase, currentStep, sessionId, isPasswordValid, submitPassword]);
 
   const sendEmailCode = async () => {
     if (!sessionId) return;
@@ -309,6 +334,7 @@ function Login() {
     setSession(null);
     setQqCode("");
     setCodeSent(false);
+    passwordAutoSubmittedRef.current = false;
     goPhase("account");
     setError(null);
   };
@@ -339,252 +365,300 @@ function Login() {
   }, [phase, currentStep]);
 
   return (
-    <div className="login-page flex min-h-screen w-full max-w-[460px] flex-col justify-center px-6 py-10 mx-auto max-[380px]:px-4 max-[380px]:py-4 animate-[login-page-in_0.45s_var(--ease-out)_both]">
-      <div
-        className="login-page__card overflow-hidden p-7 rounded-[32px] transition-[height_0.3s_var(--ease-out)]"
-        ref={cardRef}
+    <>
+      <Button
+        variant="tertiary"
+        className="signup-page__back absolute top-4 left-4 max-[380px]:top-2 max-[380px]:left-2"
+        onPress={() => navigate("../")}
       >
-        <div className="login-page__header mb-6">
-          <h1 className="m-0 mb-1 text-2xl font-semibold text-[var(--foreground)]">登录</h1>
-          <p className="m-0 text-sm text-[color-mix(in_srgb,var(--foreground)_60%,transparent)]">
-            欢迎回来，请输入账号信息
-          </p>
-        </div>
+        <LucideUndo2 /> 返回主页
+      </Button>
+      <div className="login-page flex min-h-screen w-full max-w-[520px] flex-col justify-center px-6 py-10 mx-auto max-[380px]:px-4 max-[380px]:py-4 animate-[login-page-in_0.45s_var(--ease-out)_both]">
+        <Card
+          className="login-page__card overflow-hidden p-8 transition-[height_0.3s_var(--ease-out)]"
+          ref={cardRef}
+        >
+          <div className="login-page__header mb-6">
+            <h1 className="m-0 mb-1 text-2xl font-semibold text-[var(--foreground)]">欢迎回来！</h1>
+            <p className="m-0 text-sm text-[color-mix(in_srgb,var(--foreground)_60%,transparent)]">
+              登录以访问复旦附中数字资源站
+            </p>
+          </div>
 
-        <div className="login-form flex flex-col gap-5">
-          {phase === "account" && (
-            <div className="login-step flex flex-col gap-5" key="account">
-              <Form onSubmit={submitAccount} className="login-step__inner flex flex-col gap-5">
-                <TextField isRequired name="email">
-                  <Label className="ml-2">用户名或邮箱</Label>
-                  <Input
-                    variant="secondary"
-                    value={account}
-                    onChange={(event) => setAccount(event.target.value)}
-                  />
-                  <FieldError />
-                </TextField>
-                <Button
-                  type="submit"
-                  variant="primary"
-                  size="lg"
-                  fullWidth
-                  isDisabled={!isAccountValid}
-                >
-                  继续 <LucideArrowRight />
-                </Button>
-              </Form>
-            </div>
-          )}
-
-          {phase === "challenge" && (
-            <div className="login-step flex flex-col gap-5" key="challenge">
-              <div className="login-step__back text-[8px] p-1">
-                <Button type="button" variant="ghost" size="sm" onPress={goBackToAccount}>
-                  <LucideUndo2 /> 返回
-                </Button>
-              </div>
-              <div className="login-challenge flex flex-col items-center gap-4 py-4 className='h-[100px]'">
-                {challenge ? (
-                  <AltchaChallenge challenge={challenge} onVerified={onAltchaVerified} />
-                ) : (
-                  <p className="login-challenge__hint inline-flex items-center gap-2 m-0 text-sm text-[color-mix(in_srgb,var(--foreground)_70%,transparent)]">
-                    <Spinner color="current" /> 正在加载人机验证…
-                  </p>
-                )}
-                {submitting && (
-                  <p className="login-challenge__hint inline-flex items-center gap-2 m-0 text-sm text-[color-mix(in_srgb,var(--foreground)_70%,transparent)]">
-                    <Spinner color="current" /> 正在创建登录会话…
-                  </p>
-                )}
-              </div>
-              {error && <ErrorNotice error={error} />}
-            </div>
-          )}
-
-          {phase === "verify" && session && (
-            <div className="login-step flex flex-col gap-5" key={currentStep ?? "verify-waiting"}>
-              <div className="login-step__back text-[8px] p-1">
-                <Button type="button" variant="ghost" size="sm" onPress={goBackToAccount}>
-                  <LucideArrowRight /> 返回
-                </Button>
-              </div>
-
-              {!currentStep && (
-                <div className="login-step__inner flex flex-col items-center gap-4 py-4">
-                  <Spinner color="current" />
-                  <p className="m-0 text-sm text-[color-mix(in_srgb,var(--foreground)_70%,transparent)]">
-                    正在等待下一步验证…
-                  </p>
-                </div>
-              )}
-
-              {currentStep === "password" && (
-                <Form onSubmit={submitPassword} className="login-step__inner flex flex-col gap-5">
-                  <TextField isRequired name="password" type="password">
-                    <Label className="ml-2">密码</Label>
+          <div className="login-form flex flex-col gap-5">
+            {phase === "account" && (
+              <div className="login-step flex flex-col gap-5" key="account">
+                <Form onSubmit={submitAccount} className="login-step__inner flex flex-col gap-5">
+                  <TextField isRequired name="email">
+                    <Label>用户名，学号或邮箱</Label>
                     <Input
                       variant="secondary"
-                      placeholder="请输入密码"
-                      type="password"
-                      value={password}
-                      onChange={(event) => setPassword(event.target.value)}
+                      value={account}
+                      onChange={(event) => setAccount(event.target.value)}
+                      placeholder="20290101 / email@example.com"
                     />
                     <FieldError />
                   </TextField>
-                  {error && <ErrorNotice error={error} />}
+                  <TextField isRequired name="password" type="password">
+                    <Label>密码</Label>
+                    <Input
+                      variant="secondary"
+                      type="password"
+                      value={password}
+                      onChange={(event) => setPassword(event.target.value)}
+                      placeholder="请输入密码"
+                    />
+                    <FieldError />
+                  </TextField>
+                  <div className="h-6 flex justify-between">
+                    <Checkbox name="rememberDevice">
+                      <Checkbox.Content>
+                        <Checkbox.Control>
+                          <Checkbox.Indicator />
+                        </Checkbox.Control>
+                        记住此设备
+                      </Checkbox.Content>
+                    </Checkbox>
+                    <Link to="#" className="text-blue-500 text-sm">
+                      忘记密码
+                    </Link>
+                  </div>
                   <Button
                     type="submit"
                     variant="primary"
                     size="lg"
                     fullWidth
-                    isDisabled={submitting || !isPasswordValid}
+                    isDisabled={!isAccountValid || !isPasswordValid}
                   >
-                    {submitting ? <Spinner color="current" /> : null}
-                    继续 <LucideArrowRight />
+                    登录
                   </Button>
                 </Form>
-              )}
+              </div>
+            )}
 
-              {currentStep === "email" && (
-                <Form onSubmit={submitEmailCode} className="login-step__inner flex flex-col gap-5">
-                  <div className="login-code flex items-end gap-2 max-[380px]:flex-wrap">
+            {phase === "challenge" && (
+              <div className="login-step flex flex-col gap-5" key="challenge">
+                <div className="login-step__back text-[8px] p-1">
+                  <Button type="button" variant="ghost" size="sm" onPress={goBackToAccount}>
+                    <LucideUndo2 /> 返回
+                  </Button>
+                </div>
+                <div className="login-challenge flex flex-col items-center gap-4 py-4 className='h-[100px]'">
+                  {challenge ? (
+                    <AltchaChallenge challenge={challenge} onVerified={onAltchaVerified} />
+                  ) : (
+                    <p className="login-challenge__hint inline-flex items-center gap-2 m-0 text-sm text-[color-mix(in_srgb,var(--foreground)_70%,transparent)]">
+                      <Spinner color="current" /> 正在加载人机验证…
+                    </p>
+                  )}
+                  {submitting && (
+                    <p className="login-challenge__hint inline-flex items-center gap-2 m-0 text-sm text-[color-mix(in_srgb,var(--foreground)_70%,transparent)]">
+                      <Spinner color="current" /> 正在创建登录会话…
+                    </p>
+                  )}
+                </div>
+                {error && <ErrorNotice error={error} />}
+              </div>
+            )}
+
+            {phase === "verify" && session && (
+              <div className="login-step flex flex-col gap-5" key={currentStep ?? "verify-waiting"}>
+                <div className="login-step__back text-[8px] p-1">
+                  <Button type="button" variant="ghost" size="sm" onPress={goBackToAccount}>
+                    <LucideArrowRight /> 返回
+                  </Button>
+                </div>
+
+                {!currentStep && (
+                  <div className="login-step__inner flex flex-col items-center gap-4 py-4">
+                    <Spinner color="current" />
+                    <p className="m-0 text-sm text-[color-mix(in_srgb,var(--foreground)_70%,transparent)]">
+                      正在等待下一步验证…
+                    </p>
+                  </div>
+                )}
+
+                {currentStep === "password" &&
+                  (error ? (
+                    <Form
+                      onSubmit={submitPassword}
+                      className="login-step__inner flex flex-col gap-5"
+                    >
+                      <TextField isRequired name="password" type="password">
+                        <Label className="ml-2">密码</Label>
+                        <Input
+                          variant="secondary"
+                          placeholder="请输入密码"
+                          type="password"
+                          value={password}
+                          onChange={(event) => setPassword(event.target.value)}
+                        />
+                        <FieldError />
+                      </TextField>
+                      <ErrorNotice error={error} />
+                      <Button
+                        type="submit"
+                        variant="primary"
+                        size="lg"
+                        fullWidth
+                        isDisabled={submitting || !isPasswordValid}
+                      >
+                        {submitting ? <Spinner color="current" /> : null}
+                        继续 <LucideArrowRight />
+                      </Button>
+                    </Form>
+                  ) : (
+                    <div className="login-step__inner flex flex-col items-center gap-4 py-4">
+                      <Spinner color="current" />
+                      <p className="m-0 text-sm text-[color-mix(in_srgb,var(--foreground)_70%,transparent)]">
+                        正在验证密码…
+                      </p>
+                    </div>
+                  ))}
+
+                {currentStep === "email" && (
+                  <Form
+                    onSubmit={submitEmailCode}
+                    className="login-step__inner flex flex-col gap-5"
+                  >
+                    <div className="login-code flex items-end gap-2 max-[380px]:flex-wrap">
+                      <TextField
+                        isRequired
+                        name="code"
+                        validate={(v) => (/^\d{6}$/.test(v) ? null : "请输入 6 位数字验证码")}
+                      >
+                        <Label className="ml-2">邮箱验证码</Label>
+                        <Input
+                          variant="secondary"
+                          placeholder="6 位验证码"
+                          value={emailCode}
+                          onChange={(event) => setEmailCode(event.target.value)}
+                        />
+                        <FieldError />
+                      </TextField>
+                      <span
+                        className={`login-code__send-wrap shrink-0 overflow-hidden transition-[width_0.3s_var(--ease-out)]${sending ? " is-sending" : ""}`}
+                        style={{ width: sending ? "9.5rem" : "7.25rem" }}
+                      >
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          onPress={sendEmailCode}
+                          isDisabled={sending}
+                          className="login-code__send w-full whitespace-nowrap"
+                          fullWidth
+                        >
+                          <LucideMail />
+                          {sending ? (
+                            <>
+                              <Spinner color="current" />
+                              发送中
+                            </>
+                          ) : codeSent ? (
+                            "重新发送"
+                          ) : (
+                            "获取验证码"
+                          )}
+                        </Button>
+                      </span>
+                    </div>
+                    {codeSent && (
+                      <p className="login-code__hint -mt-2 text-[13px] text-[var(--accent)] animate-[fade-slide-in_0.3s_var(--ease-out)_both]">
+                        验证码已发送至邮箱，请查收。
+                      </p>
+                    )}
+                    {error && <ErrorNotice error={error} />}
+                    <Button
+                      type="submit"
+                      variant="primary"
+                      size="lg"
+                      fullWidth
+                      isDisabled={submitting || !isEmailCodeValid}
+                    >
+                      {submitting ? (
+                        <>
+                          <Spinner color="current" />
+                          验证中
+                        </>
+                      ) : (
+                        "验证"
+                      )}
+                    </Button>
+                  </Form>
+                )}
+
+                {currentStep === "qq" && (
+                  <div className="login-step__inner flex flex-col gap-5">
+                    <p className="login-page__hint inline-flex items-center justify-center gap-2 m-0 text-sm text-[color-mix(in_srgb,var(--foreground)_70%,transparent)]">
+                      请向 <strong>QQ 机器人</strong> 私聊发送验证码：
+                    </p>
+                    <p className="login-qq-code m-0 p-3 rounded-xl text-xl font-semibold tracking-[0.2em] text-center bg-[color-mix(in_srgb,var(--accent)_12%,transparent)] text-[var(--accent)]">
+                      {qqCode || "…"}
+                    </p>
+                    <p className="login-page__hint inline-flex items-center justify-center gap-2 m-0 text-sm text-[color-mix(in_srgb,var(--foreground)_70%,transparent)]">
+                      发送后请稍候，正在等待验证…
+                    </p>
+                    {error && <ErrorNotice error={error} />}
+                  </div>
+                )}
+
+                {currentStep === "totp" && (
+                  <Form onSubmit={submitTotp} className="login-step__inner flex flex-col gap-5">
                     <TextField
                       isRequired
                       name="code"
                       validate={(v) => (/^\d{6}$/.test(v) ? null : "请输入 6 位数字验证码")}
                     >
-                      <Label className="ml-2">邮箱验证码</Label>
+                      <Label className="ml-2">TOTP 验证码</Label>
                       <Input
                         variant="secondary"
                         placeholder="6 位验证码"
-                        value={emailCode}
-                        onChange={(event) => setEmailCode(event.target.value)}
+                        value={totpCode}
+                        onChange={(event) => setTotpCode(event.target.value)}
                       />
                       <FieldError />
                     </TextField>
-                    <span
-                      className={`login-code__send-wrap shrink-0 overflow-hidden transition-[width_0.3s_var(--ease-out)]${sending ? " is-sending" : ""}`}
-                      style={{ width: sending ? "9.5rem" : "7.25rem" }}
+                    {error && <ErrorNotice error={error} />}
+                    <Button
+                      type="submit"
+                      variant="primary"
+                      size="lg"
+                      fullWidth
+                      isDisabled={submitting || !isTotpValid}
                     >
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        onPress={sendEmailCode}
-                        isDisabled={sending}
-                        className="login-code__send w-full whitespace-nowrap"
-                        fullWidth
-                      >
-                        <LucideMail />
-                        {sending ? (
-                          <>
-                            <Spinner color="current" />
-                            发送中
-                          </>
-                        ) : codeSent ? (
-                          "重新发送"
-                        ) : (
-                          "获取验证码"
-                        )}
-                      </Button>
-                    </span>
-                  </div>
-                  {codeSent && (
-                    <p className="login-code__hint -mt-2 text-[13px] text-[var(--accent)] animate-[fade-slide-in_0.3s_var(--ease-out)_both]">
-                      验证码已发送至邮箱，请查收。
-                    </p>
-                  )}
-                  {error && <ErrorNotice error={error} />}
-                  <Button
-                    type="submit"
-                    variant="primary"
-                    size="lg"
-                    fullWidth
-                    isDisabled={submitting || !isEmailCodeValid}
-                  >
-                    {submitting ? (
-                      <>
-                        <Spinner color="current" />
-                        验证中
-                      </>
-                    ) : (
-                      "验证"
-                    )}
-                  </Button>
-                </Form>
-              )}
+                      {submitting ? (
+                        <>
+                          <Spinner color="current" />
+                          验证中
+                        </>
+                      ) : (
+                        "验证"
+                      )}
+                    </Button>
+                  </Form>
+                )}
+              </div>
+            )}
 
-              {currentStep === "qq" && (
-                <div className="login-step__inner flex flex-col gap-5">
-                  <p className="login-page__hint inline-flex items-center justify-center gap-2 m-0 text-sm text-[color-mix(in_srgb,var(--foreground)_70%,transparent)]">
-                    请向 <strong>QQ 机器人</strong> 私聊发送验证码：
-                  </p>
-                  <p className="login-qq-code m-0 p-3 rounded-xl text-xl font-semibold tracking-[0.2em] text-center bg-[color-mix(in_srgb,var(--accent)_12%,transparent)] text-[var(--accent)]">
-                    {qqCode || "…"}
-                  </p>
-                  <p className="login-page__hint inline-flex items-center justify-center gap-2 m-0 text-sm text-[color-mix(in_srgb,var(--foreground)_70%,transparent)]">
-                    发送后请稍候，正在等待验证…
-                  </p>
-                  {error && <ErrorNotice error={error} />}
-                </div>
-              )}
+            {phase === "finalizing" && (
+              <div className="login-step flex flex-col gap-5" key="finalizing">
+                <p className="login-page__hint inline-flex items-center justify-center gap-2 m-0 text-sm text-[color-mix(in_srgb,var(--foreground)_70%,transparent)]">
+                  <Spinner color="current" /> 正在登录…
+                </p>
+                {error && <ErrorNotice error={error} />}
+              </div>
+            )}
+          </div>
+        </Card>
 
-              {currentStep === "totp" && (
-                <Form onSubmit={submitTotp} className="login-step__inner flex flex-col gap-5">
-                  <TextField
-                    isRequired
-                    name="code"
-                    validate={(v) => (/^\d{6}$/.test(v) ? null : "请输入 6 位数字验证码")}
-                  >
-                    <Label className="ml-2">TOTP 验证码</Label>
-                    <Input
-                      variant="secondary"
-                      placeholder="6 位验证码"
-                      value={totpCode}
-                      onChange={(event) => setTotpCode(event.target.value)}
-                    />
-                    <FieldError />
-                  </TextField>
-                  {error && <ErrorNotice error={error} />}
-                  <Button
-                    type="submit"
-                    variant="primary"
-                    size="lg"
-                    fullWidth
-                    isDisabled={submitting || !isTotpValid}
-                  >
-                    {submitting ? (
-                      <>
-                        <Spinner color="current" />
-                        验证中
-                      </>
-                    ) : (
-                      "验证"
-                    )}
-                  </Button>
-                </Form>
-              )}
-            </div>
-          )}
-
-          {phase === "finalizing" && (
-            <div className="login-step flex flex-col gap-5" key="finalizing">
-              <p className="login-page__hint inline-flex items-center justify-center gap-2 m-0 text-sm text-[color-mix(in_srgb,var(--foreground)_70%,transparent)]">
-                <Spinner color="current" /> 正在登录…
-              </p>
-              {error && <ErrorNotice error={error} />}
-            </div>
-          )}
-        </div>
+        <p className="login-page__footer mt-5 text-center text-sm text-[color-mix(in_srgb,var(--foreground)_60%,transparent)]">
+          还没有账号？
+          <Link className="login-page__link text-[var(--accent)] cursor-pointer" to="/signup">
+            注册
+          </Link>
+        </p>
       </div>
-
-      <p className="login-page__footer mt-5 text-center text-sm text-[color-mix(in_srgb,var(--foreground)_60%,transparent)]">
-        还没有账号？
-        <Link className="login-page__link text-[var(--accent)] cursor-pointer" to="/signup">
-          注册
-        </Link>
-      </p>
-    </div>
+    </>
   );
 }
 

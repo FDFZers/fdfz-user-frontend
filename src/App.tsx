@@ -3,7 +3,6 @@ import { type Key, useEffect, useState } from "react";
 import { Button, Tabs } from "@heroui/react";
 import { Outlet } from "react-router";
 import "./App.css";
-import "./base.css";
 import Sidebar from "./components/Sidebar";
 
 const THEME_KEY = "ffwiki_theme";
@@ -65,7 +64,7 @@ function App() {
   };
 
   return (
-    <div className="app-shell relative flex h-screen overflow-hidden">
+    <div className="app-shell relative flex h-screen w-full overflow-hidden">
       <Sidebar collapsed={collapsed} mobile={isMobile} />
       {isMobile && !collapsed && (
         <div
@@ -75,9 +74,9 @@ function App() {
         />
       )}
 
-      <div className="app-main flex flex-1 min-w-0 flex-col overflow-hidden">
-        <header className="app-header flex items-center justify-between gap-4 px-4 py-3 sticky top-0 z-10 bg-[color-mix(in_srgb,var(--background)_92%,transparent)] backdrop-blur-[10px] max-[767px]:px-3 max-[767px]:py-2.5">
-          <div className="app-header__left flex items-center gap-2">
+      <div className="app-main relative flex flex-1 min-w-0 flex-col overflow-hidden">
+        <div className="pointer-events-none absolute left-4 top-3 z-30 max-[767px]:left-3 max-[767px]:top-2.5">
+          <div className="pointer-events-auto flex w-fit items-center rounded-full bg-[color-mix(in_srgb,var(--background)_92%,transparent)] p-1 shadow-[0_2px_10px_rgba(0,0,0,0.08)] backdrop-blur-[10px]">
             <Button
               variant="ghost"
               size="md"
@@ -88,16 +87,18 @@ function App() {
               <LucideLayoutPanelLeft />
             </Button>
           </div>
+        </div>
 
-          <div className="app-header__right flex items-center gap-2">
+        <div className="pointer-events-none absolute right-4 top-3 z-30 max-[767px]:right-3 max-[767px]:top-2.5">
+          <div className="pointer-events-auto flex w-fit items-center rounded-full bg-[color-mix(in_srgb,var(--background)_92%,transparent)] p-1 shadow-[0_2px_10px_rgba(0,0,0,0.08)] backdrop-blur-[10px]">
             <Tabs selectedKey={theme} onSelectionChange={handleThemeChange}>
               <Tabs.ListContainer>
                 <Tabs.List aria-label="主题">
-                  <Tabs.Tab id="light">
+                  <Tabs.Tab id="light" className="px-1.5">
                     <LucideSun />
                     <Tabs.Indicator />
                   </Tabs.Tab>
-                  <Tabs.Tab id="dark">
+                  <Tabs.Tab id="dark" className="px-1.5">
                     <LucideMoon />
                     <Tabs.Indicator />
                   </Tabs.Tab>
@@ -105,7 +106,7 @@ function App() {
               </Tabs.ListContainer>
             </Tabs>
           </div>
-        </header>
+        </div>
 
         <main className="app-content flex-1 overflow-y-auto px-4 py-5 bg-[color-mix(in_srgb,var(--background)_92%,transparent)] max-[767px]:px-3 max-[767px]:py-4">
           <Outlet />

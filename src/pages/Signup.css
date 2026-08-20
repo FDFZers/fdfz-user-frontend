@@ -1,6 +1,12 @@
 @keyframes signup-page-in {
-  from { opacity: 0; transform: translateY(12px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .signup-step {
@@ -8,8 +14,14 @@
 }
 
 @keyframes signup-step-in {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* File-upload button (pseudo-element) */
@@ -26,12 +38,4 @@
 }
 .signup-authfile-input::file-selector-button:hover {
   background: color-mix(in srgb, var(--foreground) 18%, transparent);
-}
-
-/* Inline inputs inside credential rows should fill remaining width */
-.signup-info-form .signup-authfile-row .input,
-.signup-auth-form .signup-authfile-row .input {
-  flex: 1;
-  min-width: 0;
-  width: 100%;
 }

@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router";
 import {
   Alert,
   Button,
+  Card,
   FieldError,
   Form,
   Input,
@@ -23,7 +24,6 @@ import {
 } from "../api/auth";
 import { ApiError } from "../api/client";
 import "./Signup.css";
-import "../base.css";
 
 /* 错误信息
  *isNetwork  标记网络错误
@@ -238,7 +238,7 @@ function Signup() {
         <LucideUndo2 /> 返回主页
       </Button>
       <div className="signup-page flex min-h-screen w-full max-w-[460px] flex-col justify-center px-6 pt-12 pb-16 mx-auto max-[380px]:px-4 max-[380px]:py-4 animate-[signup-page-in_0.45s_var(--ease-out)_both]">
-        <div
+        <Card
           className="signup-page__card overflow-hidden p-7 rounded-[32px] transition-[height_0.3s_var(--ease-out)]"
           ref={cardRef}
         >
@@ -279,8 +279,8 @@ function Signup() {
                 type="button"
                 size="lg"
                 fullWidth
-                onPress={() => {
-                  navigate("../");
+                onPress={async () => {
+                  await navigate("../");
                 }}
               >
                 回到主页
@@ -597,7 +597,7 @@ function Signup() {
               )}
             </>
           )}
-        </div>
+        </Card>
 
         <p className="signup-page__footer mt-5 text-center text-sm text-[color-mix(in_srgb,var(--foreground)_60%,transparent)]">
           已有账号？
