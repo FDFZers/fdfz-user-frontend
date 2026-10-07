@@ -1,5 +1,12 @@
 import { AlertDialog, Avatar, Button, Label, ListBox, Surface } from "@heroui/react";
-import { LucideHouse, LucideLogIn, LucideLogOut, LucideSquarePen, LucideUser } from "lucide-react";
+import {
+  LucideHouse,
+  LucideLogIn,
+  LucideLogOut,
+  LucideSquarePen,
+  LucideUser,
+  ToolCase,
+} from "lucide-react";
 import { useNavigate } from "react-router";
 import { useAuth } from "../auth/AuthContext";
 
@@ -8,14 +15,15 @@ interface SidebarProps {
   mobile: boolean;
 }
 
-const navItems = [
-  { icon: LucideHouse, label: "主页", path: "/" },
-  { icon: LucideUser, label: "我", path: "/me" },
-];
-
 function Sidebar({ collapsed, mobile }: SidebarProps) {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+
+  const navItems = [
+    { icon: LucideHouse, label: "主页", path: "/" },
+    { icon: LucideUser, label: "我", path: user ? `/user?user-id=${user.id}` : "/user" },
+    { icon: ToolCase, label: "工具箱", path: "/tools" },
+  ];
 
   return (
     <Surface
@@ -61,9 +69,9 @@ function Sidebar({ collapsed, mobile }: SidebarProps) {
           "m-0 flex-1 overflow-y-auto overflow-x-hidden p-3",
           collapsed ? "min-w-0" : "min-w-[var(--sidebar-width,240px)]",
         ].join(" ")}
-        onAction={(key) => {
+        onAction={async (key) => {
           const item = navItems.find((i) => i.label === key);
-          if (item) navigate(item.path);
+          if (item) await navigate(item.path);
         }}
       >
         {navItems.map(({ icon: Icon, label }) => (
@@ -109,9 +117,9 @@ function Sidebar({ collapsed, mobile }: SidebarProps) {
                     <Button
                       slot="close"
                       variant="danger"
-                      onPress={() => {
+                      onPress={async () => {
                         logout();
-                        navigate("/");
+                        await navigate("/");
                       }}
                     >
                       退出

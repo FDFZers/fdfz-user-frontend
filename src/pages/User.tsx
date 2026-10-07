@@ -9,6 +9,7 @@ import {
   LucidePlus,
   LucideUserRound,
 } from "lucide-react";
+import { useSearchParams } from "react-router";
 import type { School } from "../api/auth";
 import { useAuth } from "../auth/AuthContext";
 
@@ -20,8 +21,9 @@ const SCHOOL_LABEL: Record<School, string> = {
   ffja: "静安分校",
 };
 
-function Me() {
+function User() {
   let { user } = useAuth();
+  const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState("intro");
   const [following, setFollowing] = useState(false);
 
@@ -43,6 +45,11 @@ function Me() {
       bio: "请先登录再查看此页面！",
     };
   }
+
+  // 通过 ?user-id=x 指定要查看的用户，缺省为当前登录用户
+  const requestedId = searchParams.get("user-id");
+  const parsedId = requestedId === null ? NaN : Number(requestedId);
+  const userId = Number.isFinite(parsedId) ? parsedId : user.id;
 
   return (
     <div className="me-page -mx-4 -mt-5 min-h-full max-[767px]:-mx-3 max-[767px]:-mt-4">
@@ -165,7 +172,7 @@ function Me() {
             <Card.Content className="flex flex-col gap-3 text-sm">
               <p className="m-0 flex items-center gap-3">
                 <LucideUserRound className="size-4 text-[var(--muted)]" />
-                用户 ID：{user.id}
+                用户 ID：{userId}
               </p>
               <p className="m-0 flex items-center gap-3">
                 <LucideHash className="size-4 text-[var(--muted)]" />
@@ -198,4 +205,4 @@ function Me() {
   );
 }
 
-export default Me;
+export default User;
