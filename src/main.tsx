@@ -6,6 +6,7 @@ import App from "./App.tsx";
 import Home from "./pages/Home.tsx";
 import Login from "./pages/Login.tsx";
 import Signup from "./pages/Signup.tsx";
+import Wiki from "./pages/Wiki.tsx";
 import User from "./pages/User.tsx";
 import Tools from "./pages/Tools.tsx";
 import { AuthProvider } from "./auth/AuthContext";
@@ -18,6 +19,7 @@ createRoot(document.getElementById("root")!).render(
           <Route element={<App />}>
             <Route path="/" element={<Home />} />
             <Route path="/user" element={<User />} />
+            <Route path="/wiki" element={<Wiki />} />
             <Route path="/tools" element={<Tools />} />
           </Route>
           <Route path="/login" element={<Login />} />

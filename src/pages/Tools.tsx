@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Mail } from "lucide-react";
-import { Card, Link, SearchField } from "@heroui/react";
+import { Card, Link, SearchField, Typography } from "@heroui/react";
 
 type Tool = {
   name: string;
@@ -23,7 +23,9 @@ function ToolCard({ tool, onOpen }: { tool: Tool; onOpen?: (tool: Tool) => void 
         </Link>
       </Card.Header>
       {description && (
-        <p className="mt-1 text-sm text-[var(--foreground)] opacity-60">{description}</p>
+        <Typography.Paragraph size="sm" className="mt-1 text-[var(--foreground)] opacity-60">
+          {description}
+        </Typography.Paragraph>
       )}
     </Card>
   );
@@ -57,19 +59,24 @@ function Tools() {
         >
           <SearchField.Group>
             <SearchField.SearchIcon />
-            <SearchField.Input className="w-[300px]" placeholder="搜索功能..." />
+            <SearchField.Input className="w-[300px]" placeholder="搜索功能" />
             <SearchField.ClearButton />
           </SearchField.Group>
         </SearchField>
-        <p className="absolute bottom-3 left-7 m-0 text-3xl font-bold text-[var(--foreground)] max-[767px]:left-3">
+        <Typography.Heading
+          level={1}
+          className="absolute bottom-3 left-7 m-0 text-3xl font-bold text-[var(--foreground)] max-[767px]:left-3"
+        >
           工具箱
-        </p>
+        </Typography.Heading>
       </div>
 
       <div className="tools-main px-6 py-4">
         {recentlyUsedTools.length > 0 && (
           <div className="mx-4 my-3">
-            <p className="font-bold">最近使用</p>
+            <Typography.Heading level={6} className="font-bold">
+              最近使用
+            </Typography.Heading>
             <div className="mt-3 flex flex-wrap gap-3">
               {recentlyUsedTools.map((tool) => (
                 <ToolCard key={tool.name} tool={tool} />
@@ -79,7 +86,9 @@ function Tools() {
         )}
 
         <div className="mx-4 my-3">
-          <p className="font-bold">常用工具</p>
+          <Typography.Heading level={6} className="font-bold">
+            常用工具
+          </Typography.Heading>
           <div className="mt-3 flex flex-wrap gap-3">
             {tools.map((tool) => (
               <ToolCard key={tool.name} tool={tool} onOpen={handleToolClick} />

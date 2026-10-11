@@ -1,5 +1,5 @@
 import { useAuth } from "../auth/AuthContext";
-import { SearchField } from "@heroui/react";
+import { SearchField, Typography } from "@heroui/react";
 
 function Home() {
   const { user } = useAuth();
@@ -19,15 +19,20 @@ function Home() {
         >
           <SearchField.Group>
             <SearchField.SearchIcon />
-            <SearchField.Input className="w-[300px]" placeholder="搜索资源站..." />
+            <SearchField.Input className="w-[300px]" placeholder="全站搜索" />
             <SearchField.ClearButton />
           </SearchField.Group>
         </SearchField>
-        <p className="absolute bottom-3 left-7 m-0 text-3xl font-bold text-[var(--foreground)] max-[767px]:left-3">
+        <Typography.Heading
+          level={1}
+          className="absolute bottom-3 left-7 m-0 text-3xl font-bold text-[var(--foreground)] max-[767px]:left-3"
+        >
           复旦附中数字资源站
-        </p>
+        </Typography.Heading>
       </div>
-      <h1 className="px-7 pt-7 text-xl font-medium">你好，{user?.username}</h1>
+      <Typography.Heading level={1} className="px-7 pt-7 text-xl font-medium">
+        你好，{user?.username}！
+      </Typography.Heading>
 
       {/* 主体：左侧内容 + 右侧侧栏 */}
       <div className="grid grid-cols-[minmax(0,1fr)_256px] gap-7 px-7 py-7 max-[900px]:grid-cols-1 max-[900px]:px-3">

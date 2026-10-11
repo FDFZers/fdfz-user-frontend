@@ -91,3 +91,144 @@
   --warning: oklch(82.03% 0.1411 77.24);
   --warning-foreground: oklch(21.03% 0.0059 77.24);
 }
+
+/* -------------------------------------------
+   Wiki
+   ------------------------------------------- */
+
+/* 主内容区的「变大版」搜索框：HeroUI 默认的输入组高度是 36px */
+.wiki-search-large .search-field__group {
+  height: 3rem;
+  border-radius: 9999px;
+}
+
+.wiki-search-large .search-field__input {
+  font-size: 1rem;
+}
+
+.wiki-search-large .search-field__search-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+/* Markdown 正文排版 */
+.wiki-markdown {
+  font-size: 0.95rem;
+  line-height: 1.75;
+  color: var(--foreground);
+}
+
+.wiki-markdown > *:first-child {
+  margin-top: 0;
+}
+
+.wiki-markdown h1,
+.wiki-markdown h2,
+.wiki-markdown h3,
+.wiki-markdown h4 {
+  margin: 1.6em 0 0.6em;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.wiki-markdown h1 {
+  font-size: 1.5rem;
+}
+
+.wiki-markdown h2 {
+  font-size: 1.2rem;
+}
+
+.wiki-markdown h3 {
+  font-size: 1.05rem;
+}
+
+.wiki-markdown p {
+  margin: 0.85em 0;
+}
+
+.wiki-markdown ul,
+.wiki-markdown ol {
+  margin: 0.85em 0;
+  padding-left: 1.5em;
+}
+
+.wiki-markdown ul {
+  list-style: disc;
+}
+
+.wiki-markdown ol {
+  list-style: decimal;
+}
+
+.wiki-markdown li {
+  margin: 0.35em 0;
+}
+
+.wiki-markdown a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.wiki-markdown a:hover {
+  text-decoration: underline;
+}
+
+.wiki-markdown blockquote {
+  margin: 1em 0;
+  padding: 0.1em 0 0.1em 1em;
+  border-left: 3px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  color: color-mix(in srgb, var(--foreground) 72%, transparent);
+}
+
+.wiki-markdown code {
+  padding: 0.15em 0.4em;
+  border-radius: 0.375rem;
+  background-color: var(--surface-secondary);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.875em;
+}
+
+.wiki-markdown pre {
+  margin: 1em 0;
+  padding: 0.9em 1em;
+  border-radius: var(--field-radius, 0.75rem);
+  background-color: var(--surface-secondary);
+  overflow-x: auto;
+}
+
+.wiki-markdown pre code {
+  padding: 0;
+  background: none;
+  font-size: 0.875rem;
+}
+
+.wiki-markdown table {
+  width: 100%;
+  margin: 1em 0;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.wiki-markdown th,
+.wiki-markdown td {
+  padding: 0.5em 0.7em;
+  border: 1px solid color-mix(in srgb, var(--foreground) 14%, transparent);
+  text-align: left;
+}
+
+.wiki-markdown th {
+  background-color: var(--surface-secondary);
+  font-weight: 600;
+}
+
+.wiki-markdown hr {
+  margin: 1.8em 0;
+  border: 0;
+  border-top: 1px solid color-mix(in srgb, var(--foreground) 12%, transparent);
+}
+
+.wiki-markdown img {
+  max-width: 100%;
+  border-radius: var(--radius, 0.5rem);
+}

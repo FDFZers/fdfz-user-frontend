@@ -1,4 +1,32 @@
 /* -------------------------------------------
+   Floating controls (sidebar toggle, theme switch)
+   ------------------------------------------- */
+
+/* 两者共用一层胶囊：背景、阴影、圆角与图标尺寸都在这里统一，避免元素层层包裹。 */
+.floating-control {
+  border-radius: 9999px;
+  background-color: color-mix(in srgb, var(--foreground) 7%, var(--background));
+  box-shadow: 0 2px 10px rgb(0 0 0 / 8%);
+}
+
+/* 主题切换的选中滑块比胶囊底色更亮，留一点阴影免得糊在一起。 */
+.floating-control .tabs__indicator {
+  box-shadow: 0 1px 2px rgb(0 0 0 / 14%);
+}
+
+/* 侧边栏开关直接用按钮本体当胶囊，尺寸固定成 40px 以对齐主题切换。 */
+button.floating-control {
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+/* 图标统一 18px，避免 lucide 默认的 24px 把胶囊撑满。 */
+.floating-control svg {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
+/* -------------------------------------------
    App shell
    ------------------------------------------- */
 html,
@@ -20,7 +48,7 @@ body,
 
 /* Page-enter animation for routed content */
 .app-content > * {
-  animation: page-in 0.4s var(--ease-out) both;
+  animation: page-in 0.4s var(--ease-out) backwards;
 }
 
 @keyframes page-in {
@@ -30,7 +58,7 @@ body,
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: none;
   }
 }
 
@@ -44,7 +72,7 @@ body,
 
 /* Page-enter animation for routed content */
 .app-content > * {
-  animation: page-in 0.4s var(--ease-out) both;
+  animation: page-in 0.4s var(--ease-out) backwards;
 }
 
 @keyframes page-in {
@@ -54,15 +82,6 @@ body,
   }
   to {
     opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes sidebar-backdrop-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
+    transform: none;
   }
 }

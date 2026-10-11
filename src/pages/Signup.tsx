@@ -12,6 +12,7 @@ import {
   Spinner,
   TextField,
   Tooltip,
+  Typography,
   Radio,
   RadioGroup,
 } from "@heroui/react";
@@ -243,27 +244,33 @@ function Signup() {
           ref={cardRef}
         >
           <div className="signup-page__header mb-6">
-            <h1 className="m-0 mb-1 text-2xl font-semibold text-[var(--foreground)]">注册</h1>
-            <p className="m-0 text-sm text-[color-mix(in_srgb,var(--foreground)_60%,transparent)]">
+            <Typography.Heading
+              level={1}
+              className="m-0 mb-1 text-2xl font-semibold text-[var(--foreground)]"
+            >
+              注册
+            </Typography.Heading>
+            <Typography.Paragraph
+              size="sm"
+              className="m-0 text-[color-mix(in_srgb,var(--foreground)_60%,transparent)]"
+            >
               欢迎来到 FF Wiki！
-            </p>
+            </Typography.Paragraph>
           </div>
 
           {error && (
             <div className="signup-error mb-5">
-              {error.isNetwork ? (
-                <Alert status="danger">
-                  <Alert.Indicator />
-                  <Alert.Content>
-                    <Alert.Title>网络错误</Alert.Title>
-                    <Alert.Description>
-                      {error.message}（错误代码：{error.code}）
-                    </Alert.Description>
-                  </Alert.Content>
-                </Alert>
-              ) : (
-                <p className="m-0 text-sm text-center text-[var(--danger)]">{error.message}</p>
-              )}
+              <Alert status="danger">
+                <Alert.Indicator />
+                <Alert.Content>
+                  {error.isNetwork && <Alert.Title>网络错误</Alert.Title>}
+                  <Alert.Description>
+                    {error.isNetwork
+                      ? `${error.message}（错误代码：${error.code}）`
+                      : error.message}
+                  </Alert.Description>
+                </Alert.Content>
+              </Alert>
             </div>
           )}
 
@@ -272,9 +279,12 @@ function Signup() {
               <div className="signup-success__icon flex h-8 w-8 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--accent)_15%,transparent)] text-[var(--accent)]">
                 <LucideCheck />
               </div>
-              <p className="signup-success__notice m-0 text-sm text-[color-mix(in_srgb,var(--foreground)_70%,transparent)]">
+              <Typography.Paragraph
+                size="sm"
+                className="signup-success__notice m-0 text-center text-[color-mix(in_srgb,var(--foreground)_70%,transparent)]"
+              >
                 您的注册请求已经发送，我们正在审核。请留意用户群内机器人的通知。
-              </p>
+              </Typography.Paragraph>
               <Button
                 type="button"
                 size="lg"
@@ -296,9 +306,12 @@ function Signup() {
               <div className="signup-challenge__inner flex flex-col items-center gap-4 py-4">
                 <AltchaChallenge challenge={challenge} onVerified={onAltchaVerified} />
                 {submitting && (
-                  <p className="inline-flex items-center gap-2 m-0 text-sm text-[color-mix(in_srgb,var(--foreground)_70%,transparent)]">
+                  <Typography.Paragraph
+                    size="sm"
+                    className="inline-flex items-center gap-2 m-0 text-[color-mix(in_srgb,var(--foreground)_70%,transparent)]"
+                  >
                     <Spinner color="current" /> 正在提交注册请求…
-                  </p>
+                  </Typography.Paragraph>
                 )}
               </div>
             </div>
@@ -314,20 +327,15 @@ function Signup() {
                     }}
                   >
                     <div className="signup-step flex flex-col gap-5" key="1">
-                      <TextField isRequired name="account">
+                      <TextField isRequired name="account" isInvalid={Boolean(usernameError)}>
                         <Label>用户名</Label>
                         <Input
                           variant="secondary"
                           value={account}
                           onChange={(event) => setAccount(event.target.value)}
                         />
-                        <FieldError />
+                        <FieldError>{usernameError}</FieldError>
                       </TextField>
-                      {usernameError && (
-                        <p className="signup-field-error -mt-3 text-[13px] text-[var(--danger)]">
-                          {usernameError}
-                        </p>
-                      )}
 
                       <Button
                         type="button"
@@ -359,7 +367,12 @@ function Signup() {
                         </Button>
                       </div>
 
-                      <TextField isRequired name="password" type="password">
+                      <TextField
+                        isRequired
+                        name="password"
+                        type="password"
+                        isInvalid={Boolean(passwordError)}
+                      >
                         <Label>设置密码</Label>
                         <Input
                           variant="secondary"
@@ -367,15 +380,15 @@ function Signup() {
                           value={password}
                           onChange={(event) => setPassword(event.target.value)}
                         />
-                        <FieldError />
+                        <FieldError>{passwordError}</FieldError>
                       </TextField>
-                      {passwordError && (
-                        <p className="signup-field-error -mt-3 text-[13px] text-[var(--danger)]">
-                          {passwordError}
-                        </p>
-                      )}
 
-                      <TextField isRequired name="password-verf" type="password">
+                      <TextField
+                        isRequired
+                        name="password-verf"
+                        type="password"
+                        isInvalid={passwordMismatch}
+                      >
                         <Label>确认您的密码</Label>
                         <Input
                           variant="secondary"
@@ -383,13 +396,8 @@ function Signup() {
                           value={confirm}
                           onChange={(event) => setConfirm(event.target.value)}
                         />
-                        <FieldError />
+                        <FieldError>两次输入的密码不一致</FieldError>
                       </TextField>
-                      {passwordMismatch && (
-                        <p className="signup-password-mismatch -mt-2 text-[13px] text-[var(--danger)]">
-                          两次输入的密码不一致
-                        </p>
-                      )}
 
                       <Button
                         type="button"
@@ -491,13 +499,16 @@ function Signup() {
                       <LucideUndo2 /> 返回
                     </Button>
                   </div>
-                  <h1 className="m-0 mb-5 text-lg font-semibold text-center text-[var(--foreground)]">
+                  <Typography.Heading
+                    level={2}
+                    className="m-0 mb-5 text-lg font-semibold text-center text-[var(--foreground)]"
+                  >
                     我们需要验证您确实是复旦附中的学生。
-                  </h1>
+                  </Typography.Heading>
 
                   <Form className="signup-auth-form flex flex-col gap-5" onSubmit={handleSubmit}>
                     <div className="signup-step flex flex-col gap-5" key="5">
-                      <TextField isRequired name="school-num">
+                      <TextField isRequired name="school-num" isInvalid={Boolean(studentNumError)}>
                         <Label>8 位学号</Label>
                         <div className="signup-authfile-row flex items-center gap-2">
                           <Input
@@ -531,36 +542,29 @@ function Signup() {
                             </Tooltip.Content>
                           </Tooltip>
                         </div>
-                        <FieldError />
+                        <FieldError>{studentNumError}</FieldError>
                       </TextField>
-                      {studentNumError && (
-                        <p className="signup-field-error -mt-3 text-[13px] text-[var(--danger)]">
-                          {studentNumError}
-                        </p>
-                      )}
 
-                      <TextField isRequired name="realname">
+                      <TextField isRequired name="realname" isInvalid={Boolean(realNameError)}>
                         <Label>真实姓名</Label>
                         <Input
                           variant="secondary"
                           value={realName}
                           onChange={(event) => setRealName(event.target.value)}
                         />
-                        <FieldError />
+                        <FieldError>{realNameError}</FieldError>
                       </TextField>
-                      {realNameError && (
-                        <p className="signup-field-error -mt-3 text-[13px] text-[var(--danger)]">
-                          {realNameError}
-                        </p>
-                      )}
 
-                      <div className="signup-authfile-field flex flex-col gap-2">
+                      <TextField
+                        isRequired
+                        isInvalid={Boolean(materialError)}
+                        className="signup-authfile-field flex flex-col gap-2"
+                      >
                         <Label>上传凭据以证明您的身份</Label>
                         <div className="signup-authfile-row flex items-center gap-2">
-                          <input
+                          <Input
                             type="file"
                             name="authfile"
-                            required
                             accept="image/jpeg,image/png,image/heic"
                             className="signup-authfile-input flex-1 min-w-0 w-full px-3 py-2.5 rounded-xl border border-[color-mix(in_srgb,var(--foreground)_15%,transparent)] bg-[color-mix(in_srgb,var(--foreground)_4%,transparent)] text-[var(--foreground)] text-sm cursor-pointer [font:inherit]"
                             onChange={(event) => setAuthFile(event.target.files?.[0] ?? null)}
@@ -581,12 +585,8 @@ function Signup() {
                             </Tooltip.Content>
                           </Tooltip>
                         </div>
-                        {materialError && (
-                          <p className="signup-field-error text-[13px] text-[var(--danger)]">
-                            {materialError}
-                          </p>
-                        )}
-                      </div>
+                        <FieldError>{materialError}</FieldError>
+                      </TextField>
 
                       <Button type="submit" size="lg" fullWidth isDisabled={!isStep4Valid}>
                         提交注册
@@ -599,12 +599,15 @@ function Signup() {
           )}
         </Card>
 
-        <p className="signup-page__footer mt-5 text-center text-sm text-[color-mix(in_srgb,var(--foreground)_60%,transparent)]">
+        <Typography.Paragraph
+          size="sm"
+          className="signup-page__footer mt-5 text-center text-[color-mix(in_srgb,var(--foreground)_60%,transparent)]"
+        >
           已有账号？
           <Link className="signup-page__link text-[var(--accent)] no-underline" to="/login">
             去登录
           </Link>
-        </p>
+        </Typography.Paragraph>
       </div>
     </>
   );

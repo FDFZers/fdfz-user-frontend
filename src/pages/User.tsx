@@ -1,4 +1,4 @@
-import { Avatar, Button, Card, Chip, Label, Tabs } from "@heroui/react";
+import { Avatar, Button, Card, Chip, EmptyState, Label, Tabs, Typography } from "@heroui/react";
 import { useState } from "react";
 import {
   LucideCalendarDays,
@@ -86,20 +86,31 @@ function User() {
                   </Chip>
                 )}
               </div>
-              <p className="m-0 truncate text-sm text-[color-mix(in_srgb,var(--foreground)_60%,transparent)]">
+              <Typography.Paragraph
+                size="sm"
+                className="m-0 truncate text-[color-mix(in_srgb,var(--foreground)_60%,transparent)]"
+              >
                 {user.bio || "这个人很神秘，什么也没有留下。"}
-              </p>
+              </Typography.Paragraph>
             </div>
           </div>
           <div className="flex shrink-0 items-center justify-end gap-5">
             <div className="flex gap-5 max-[600px]:hidden">
               <div className="text-center">
-                <strong className="block text-sm text-[var(--foreground)]">0</strong>
-                <span className="text-xs text-[var(--muted)]">粉丝</span>
+                <Typography weight="semibold" className="text-sm text-[var(--foreground)]">
+                  0
+                </Typography>
+                <Typography type="body-xs" className="text-[var(--muted)]">
+                  粉丝
+                </Typography>
               </div>
               <div className="text-center">
-                <strong className="block text-sm text-[var(--foreground)]">0</strong>
-                <span className="text-xs text-[var(--muted)]">关注</span>
+                <Typography weight="semibold" className="text-sm text-[var(--foreground)]">
+                  0
+                </Typography>
+                <Typography type="body-xs" className="text-[var(--muted)]">
+                  关注
+                </Typography>
               </div>
             </div>
             <Button
@@ -141,24 +152,32 @@ function User() {
               <Card variant="transparent">
                 <Card.Header>
                   <Card.Title>个人介绍</Card.Title>
-                  <Card.Description>{user.bio || "暂未填写个人简介"}</Card.Description>
                 </Card.Header>
+                <Card.Content>
+                  <Typography.Paragraph size="sm">
+                    {user.bio || "暂未填写个人简介"}
+                  </Typography.Paragraph>
+                </Card.Content>
               </Card>
             </Tabs.Panel>
             <Tabs.Panel id="achievements" className="pt-6">
               <Card variant="transparent">
                 <Card.Header>
                   <Card.Title>成就</Card.Title>
-                  <Card.Description>暂时还没有成就记录。</Card.Description>
                 </Card.Header>
+                <Card.Content>
+                  <EmptyState>暂时还没有成就记录。</EmptyState>
+                </Card.Content>
               </Card>
             </Tabs.Panel>
             <Tabs.Panel id="messages" className="pt-6">
               <Card variant="transparent">
                 <Card.Header>
                   <Card.Title>留言板</Card.Title>
-                  <Card.Description>暂时还没有留言。</Card.Description>
                 </Card.Header>
+                <Card.Content>
+                  <EmptyState>暂时还没有留言。</EmptyState>
+                </Card.Content>
               </Card>
             </Tabs.Panel>
           </Tabs>
@@ -170,23 +189,23 @@ function User() {
               <Card.Title className="text-sm">基本信息</Card.Title>
             </Card.Header>
             <Card.Content className="flex flex-col gap-3 text-sm">
-              <p className="m-0 flex items-center gap-3">
+              <Typography.Paragraph size="sm" className="m-0 flex items-center gap-3">
                 <LucideUserRound className="size-4 text-[var(--muted)]" />
                 用户 ID：{userId}
-              </p>
-              <p className="m-0 flex items-center gap-3">
+              </Typography.Paragraph>
+              <Typography.Paragraph size="sm" className="m-0 flex items-center gap-3">
                 <LucideHash className="size-4 text-[var(--muted)]" />
                 学号：{user.student_num || "未填写"}
-              </p>
-              <p className="m-0 flex items-center gap-3">
+              </Typography.Paragraph>
+              <Typography.Paragraph size="sm" className="m-0 flex items-center gap-3">
                 <LucideGraduationCap className="size-4 text-[var(--muted)]" />
                 学校：{user.school ? SCHOOL_LABEL[user.school] : "未填写"}
-              </p>
-              <p className="m-0 flex items-center gap-3">
+              </Typography.Paragraph>
+              <Typography.Paragraph size="sm" className="m-0 flex items-center gap-3">
                 <LucideCalendarDays className="size-4 text-[var(--muted)]" />
                 注册时间：
                 {user.created_at ? new Date(user.created_at).toLocaleDateString("zh-CN") : "未知"}
-              </p>
+              </Typography.Paragraph>
             </Card.Content>
           </Card>
 

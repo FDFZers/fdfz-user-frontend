@@ -1,5 +1,6 @@
-import { AlertDialog, Avatar, Button, Label, ListBox, Surface } from "@heroui/react";
+import { AlertDialog, Avatar, Button, Drawer, Label, ListBox, Surface } from "@heroui/react";
 import {
+  Newspaper,
   LucideHouse,
   LucideLogIn,
   LucideLogOut,
@@ -13,35 +14,31 @@ import { useAuth } from "../auth/AuthContext";
 interface SidebarProps {
   collapsed: boolean;
   mobile: boolean;
+  onCollapsedChange: (collapsed: boolean) => void;
 }
 
-function Sidebar({ collapsed, mobile }: SidebarProps) {
+interface SidebarContentProps {
+  collapsed: boolean;
+  onNavigate: () => void;
+}
+
+const NAV_ITEMS = [
+  { icon: LucideHouse, label: "主页", path: "/" },
+  { icon: Newspaper, label: "Wiki", path: "/wiki" },
+  { icon: ToolCase, label: "工具箱", path: "/tools" },
+  { icon: LucideUser, label: "我", path: "/user" },
+];
+
+function SidebarContent({ collapsed, onNavigate }: SidebarContentProps) {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
 
-  const navItems = [
-    { icon: LucideHouse, label: "主页", path: "/" },
-    { icon: LucideUser, label: "我", path: user ? `/user?user-id=${user.id}` : "/user" },
-    { icon: ToolCase, label: "工具箱", path: "/tools" },
-  ];
+  const navItems = NAV_ITEMS.map((item) =>
+    item.path === "/user" ? { ...item, path: user ? `/user?user-id=${user.id}` : "/user" } : item,
+  );
 
   return (
-    <Surface
-      variant="transparent"
-      className={[
-        "flex flex-col overflow-hidden border-r border-[color-mix(in_srgb,var(--foreground)_10%,transparent)] bg-[color-mix(in_srgb,var(--background)_92%,transparent)] p-0 transition-[width,border-color,transform] duration-250 ease-smooth",
-        mobile
-          ? "fixed left-0 top-0 bottom-0 z-30 w-[var(--sidebar-width,240px)] shadow-[12px_0_40px_-18px_rgba(0,0,0,0.4)]"
-          : "w-[var(--sidebar-width,240px)] shrink-0",
-        collapsed
-          ? mobile
-            ? "translate-x-[-100%]"
-            : "w-0 border-r-0"
-          : mobile
-            ? "translate-x-0"
-            : "",
-      ].join(" ")}
-    >
+    <>
       <div className="flex shrink-0 items-center gap-3 p-5" aria-label="用户信息">
         <Avatar>
           <Avatar.Image
@@ -71,7 +68,9 @@ function Sidebar({ collapsed, mobile }: SidebarProps) {
         ].join(" ")}
         onAction={async (key) => {
           const item = navItems.find((i) => i.label === key);
-          if (item) await navigate(item.path);
+          if (!item) return;
+          onNavigate();
+          await navigate(item.path);
         }}
       >
         {navItems.map(({ icon: Icon, label }) => (
@@ -119,6 +118,7 @@ function Sidebar({ collapsed, mobile }: SidebarProps) {
                       variant="danger"
                       onPress={async () => {
                         logout();
+                        onNavigate();
                         await navigate("/");
                       }}
                     >
@@ -135,19 +135,65 @@ function Sidebar({ collapsed, mobile }: SidebarProps) {
               variant="ghost"
               size="md"
               fullWidth
-              onPress={() => navigate("/signup")}
+              onPress={async () => {
+                onNavigate();
+                await navigate("/signup");
+              }}
               className="mb-2"
             >
               <LucideSquarePen className="mr-2" />
               注册
             </Button>
-            <Button variant="primary" size="md" fullWidth onPress={() => navigate("/login")}>
+            <Button
+              variant="primary"
+              size="md"
+              fullWidth
+              onPress={async () => {
+                onNavigate();
+                await navigate("/login");
+              }}
+            >
               <LucideLogIn className="mr-2" />
               登录
             </Button>
           </>
         )}
       </div>
+    </>
+  );
+}
+
+function Sidebar({ collapsed, mobile, onCollapsedChange }: SidebarProps) {
+  // 移动端把导航收进 HeroUI Drawer：自带遮罩、Esc 关闭与焦点管理。
+  // 抽屉状态由外部 collapsed 受控，因此直接用 Backdrop 的 isOpen/onOpenChange。
+  if (mobile) {
+    return (
+      <Drawer.Backdrop
+        isOpen={!collapsed}
+        onOpenChange={(isOpen) => onCollapsedChange(!isOpen)}
+        isDismissable
+      >
+        <Drawer.Content placement="left">
+          <Drawer.Dialog
+            aria-label="导航菜单"
+            className="flex w-[var(--sidebar-width,240px)] max-w-[85vw] flex-col border-r border-[color-mix(in_srgb,var(--foreground)_10%,transparent)] bg-[color-mix(in_srgb,var(--background)_95%,transparent)] p-0 backdrop-blur-[10px]"
+          >
+            <SidebarContent collapsed={false} onNavigate={() => onCollapsedChange(true)} />
+          </Drawer.Dialog>
+        </Drawer.Content>
+      </Drawer.Backdrop>
+    );
+  }
+
+  return (
+    <Surface
+      variant="transparent"
+      className={[
+        "flex flex-col overflow-hidden border-r border-[color-mix(in_srgb,var(--foreground)_10%,transparent)] bg-[color-mix(in_srgb,var(--background)_92%,transparent)] p-0 transition-[width,border-color] duration-250 ease-smooth",
+        collapsed ? "w-0 border-r-0" : "w-[var(--sidebar-width,240px)] shrink-0",
+      ].join(" ")}
+    >
+      <SidebarContent collapsed={collapsed} onNavigate={() => {}} />
     </Surface>
   );
 }

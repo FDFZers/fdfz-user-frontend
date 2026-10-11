@@ -12,6 +12,7 @@ import {
   Label,
   Spinner,
   TextField,
+  Typography,
 } from "@heroui/react";
 import { useAuth } from "../auth/AuthContext";
 import AltchaChallenge from "../components/AltchaChallenge";
@@ -73,26 +74,19 @@ function fieldError(message: string): ErrorInfo {
   return { message, isNetwork: false };
 }
 
-// 网络错误用 Alert 展示并附错误代码，其余用普通文本
+// 错误统一用 Alert 展示；网络错误额外附上错误代码
 function ErrorNotice({ error }: { error: ErrorInfo | null }) {
   if (!error) return null;
-  if (error.isNetwork) {
-    return (
-      <Alert status="danger">
-        <Alert.Indicator />
-        <Alert.Content>
-          <Alert.Title>网络错误</Alert.Title>
-          <Alert.Description>
-            {error.message}（错误代码：{error.code}）
-          </Alert.Description>
-        </Alert.Content>
-      </Alert>
-    );
-  }
   return (
-    <p className="login-page__error m-0 text-sm text-center text-[var(--danger)]">
-      {error.message}
-    </p>
+    <Alert status="danger">
+      <Alert.Indicator />
+      <Alert.Content>
+        {error.isNetwork && <Alert.Title>网络错误</Alert.Title>}
+        <Alert.Description>
+          {error.isNetwork ? `${error.message}（错误代码：${error.code}）` : error.message}
+        </Alert.Description>
+      </Alert.Content>
+    </Alert>
   );
 }
 
@@ -379,10 +373,18 @@ function Login() {
           ref={cardRef}
         >
           <div className="login-page__header mb-6">
-            <h1 className="m-0 mb-1 text-2xl font-semibold text-[var(--foreground)]">欢迎回来！</h1>
-            <p className="m-0 text-sm text-[color-mix(in_srgb,var(--foreground)_60%,transparent)]">
+            <Typography.Heading
+              level={1}
+              className="m-0 mb-1 text-2xl font-semibold text-[var(--foreground)]"
+            >
+              欢迎回来！
+            </Typography.Heading>
+            <Typography.Paragraph
+              size="sm"
+              className="m-0 text-[color-mix(in_srgb,var(--foreground)_60%,transparent)]"
+            >
               登录以访问复旦附中数字资源站
-            </p>
+            </Typography.Paragraph>
           </div>
 
           <div className="login-form flex flex-col gap-5">
@@ -447,14 +449,20 @@ function Login() {
                   {challenge ? (
                     <AltchaChallenge challenge={challenge} onVerified={onAltchaVerified} />
                   ) : (
-                    <p className="login-challenge__hint inline-flex items-center gap-2 m-0 text-sm text-[color-mix(in_srgb,var(--foreground)_70%,transparent)]">
+                    <Typography.Paragraph
+                      size="sm"
+                      className="login-challenge__hint inline-flex items-center gap-2 m-0 text-[color-mix(in_srgb,var(--foreground)_70%,transparent)]"
+                    >
                       <Spinner color="current" /> 正在加载人机验证…
-                    </p>
+                    </Typography.Paragraph>
                   )}
                   {submitting && (
-                    <p className="login-challenge__hint inline-flex items-center gap-2 m-0 text-sm text-[color-mix(in_srgb,var(--foreground)_70%,transparent)]">
+                    <Typography.Paragraph
+                      size="sm"
+                      className="login-challenge__hint inline-flex items-center gap-2 m-0 text-[color-mix(in_srgb,var(--foreground)_70%,transparent)]"
+                    >
                       <Spinner color="current" /> 正在创建登录会话…
-                    </p>
+                    </Typography.Paragraph>
                   )}
                 </div>
                 {error && <ErrorNotice error={error} />}
@@ -472,9 +480,12 @@ function Login() {
                 {!currentStep && (
                   <div className="login-step__inner flex flex-col items-center gap-4 py-4">
                     <Spinner color="current" />
-                    <p className="m-0 text-sm text-[color-mix(in_srgb,var(--foreground)_70%,transparent)]">
+                    <Typography.Paragraph
+                      size="sm"
+                      className="m-0 text-[color-mix(in_srgb,var(--foreground)_70%,transparent)]"
+                    >
                       正在等待下一步验证…
-                    </p>
+                    </Typography.Paragraph>
                   </div>
                 )}
 
@@ -510,9 +521,12 @@ function Login() {
                   ) : (
                     <div className="login-step__inner flex flex-col items-center gap-4 py-4">
                       <Spinner color="current" />
-                      <p className="m-0 text-sm text-[color-mix(in_srgb,var(--foreground)_70%,transparent)]">
+                      <Typography.Paragraph
+                        size="sm"
+                        className="m-0 text-[color-mix(in_srgb,var(--foreground)_70%,transparent)]"
+                      >
                         正在验证密码…
-                      </p>
+                      </Typography.Paragraph>
                     </div>
                   ))}
 
@@ -563,9 +577,9 @@ function Login() {
                       </span>
                     </div>
                     {codeSent && (
-                      <p className="login-code__hint -mt-2 text-[13px] text-[var(--accent)] animate-[fade-slide-in_0.3s_var(--ease-out)_both]">
+                      <Typography.Paragraph className="login-code__hint -mt-2 text-[13px] text-[var(--accent)] animate-[fade-slide-in_0.3s_var(--ease-out)_both]">
                         验证码已发送至邮箱，请查收。
-                      </p>
+                      </Typography.Paragraph>
                     )}
                     {error && <ErrorNotice error={error} />}
                     <Button
@@ -589,15 +603,21 @@ function Login() {
 
                 {currentStep === "qq" && (
                   <div className="login-step__inner flex flex-col gap-5">
-                    <p className="login-page__hint inline-flex items-center justify-center gap-2 m-0 text-sm text-[color-mix(in_srgb,var(--foreground)_70%,transparent)]">
+                    <Typography.Paragraph
+                      size="sm"
+                      className="login-page__hint inline-flex items-center justify-center gap-2 m-0 text-[color-mix(in_srgb,var(--foreground)_70%,transparent)]"
+                    >
                       请向 <strong>QQ 机器人</strong> 私聊发送验证码：
-                    </p>
-                    <p className="login-qq-code m-0 p-3 rounded-xl text-xl font-semibold tracking-[0.2em] text-center bg-[color-mix(in_srgb,var(--accent)_12%,transparent)] text-[var(--accent)]">
+                    </Typography.Paragraph>
+                    <Typography.Paragraph className="login-qq-code m-0 p-3 rounded-xl text-xl font-semibold tracking-[0.2em] text-center bg-[color-mix(in_srgb,var(--accent)_12%,transparent)] text-[var(--accent)]">
                       {qqCode || "…"}
-                    </p>
-                    <p className="login-page__hint inline-flex items-center justify-center gap-2 m-0 text-sm text-[color-mix(in_srgb,var(--foreground)_70%,transparent)]">
+                    </Typography.Paragraph>
+                    <Typography.Paragraph
+                      size="sm"
+                      className="login-page__hint inline-flex items-center justify-center gap-2 m-0 text-[color-mix(in_srgb,var(--foreground)_70%,transparent)]"
+                    >
                       发送后请稍候，正在等待验证…
-                    </p>
+                    </Typography.Paragraph>
                     {error && <ErrorNotice error={error} />}
                   </div>
                 )}
@@ -642,21 +662,27 @@ function Login() {
 
             {phase === "finalizing" && (
               <div className="login-step flex flex-col gap-5" key="finalizing">
-                <p className="login-page__hint inline-flex items-center justify-center gap-2 m-0 text-sm text-[color-mix(in_srgb,var(--foreground)_70%,transparent)]">
+                <Typography.Paragraph
+                  size="sm"
+                  className="login-page__hint inline-flex items-center justify-center gap-2 m-0 text-[color-mix(in_srgb,var(--foreground)_70%,transparent)]"
+                >
                   <Spinner color="current" /> 正在登录…
-                </p>
+                </Typography.Paragraph>
                 {error && <ErrorNotice error={error} />}
               </div>
             )}
           </div>
         </Card>
 
-        <p className="login-page__footer mt-5 text-center text-sm text-[color-mix(in_srgb,var(--foreground)_60%,transparent)]">
+        <Typography.Paragraph
+          size="sm"
+          className="login-page__footer mt-5 text-center text-[color-mix(in_srgb,var(--foreground)_60%,transparent)]"
+        >
           还没有账号？
           <Link className="login-page__link text-[var(--accent)] cursor-pointer" to="/signup">
             注册
           </Link>
-        </p>
+        </Typography.Paragraph>
       </div>
     </>
   );
